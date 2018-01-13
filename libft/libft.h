@@ -86,10 +86,10 @@ t_list			*ft_lstsplit(char const *s, char c);
 void			ft_swap(void *s1, void *s2);
 int				ft_sqrt(int n);
 int				ft_noregcmp(const char *s1, const char *s2);
-size_t			ft_nbrlen(long long int n);
+size_t			ft_nbrlen(intmax_t n);
 int				ft_dectooct(int n);
 double			ft_power(int n, int pow);
-char			*ft_itoa_base(long long int value, int base);
+char			*ft_itoa_base(intmax_t value, int base);
 void			ft_lstpush(t_list **alst, t_list *new);
 
 #endif

@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-static int		stsize(long long int value, int base)
+static int		stsize(intmax_t value, int base)
 {
 	int size;
 
@@ -25,7 +25,7 @@ static int		stsize(long long int value, int base)
 	return (size);
 }
 
-static int		mincheck(long long int *value, int base)
+static int		mincheck(intmax_t *value, int base)
 {
 	int size;
 
@@ -41,7 +41,7 @@ static int		mincheck(long long int *value, int base)
 	return (size);
 }
 
-char			*ft_itoa_base(long long int value, int base)
+char			*ft_itoa_base(intmax_t value, int base)
 {
 	int		size;
 	char	*res;

@@ -102,7 +102,7 @@ int min(int a, int b)
 
 char 	*handle_digit(va_list ap, t_spec *ts)
 {
-	long long int i;
+	intmax_t i;
 	int il;
 	int f_len;
 	char *fs;
@@ -118,14 +118,19 @@ char 	*handle_digit(va_list ap, t_spec *ts)
 		i = (short int)va_arg(ap, int);
 	else if (ts->hh)
 		i = (char)va_arg(ap, int);
+	else if (ts->z == 1)
+		i = va_arg(ap, ssize_t);
+	else if (ts->j == 1)
+		i = va_arg(ap, intmax_t);
 	else
 		i = va_arg(ap, int);
-	//printf("%lld\n", i);
+	printf("%jd\n", i);
 	il = ft_nbrlen(i);
 	f_len = max(il, ts->width);
 	f_len = max(f_len, ts->prec);
 	fs = (char *)ft_memalloc(f_len + 1);
 	is = ft_itoa_base(i, 10);
+	//printf("%s", is);
 	//ft_putnbr(i);
 	//ft_putstr(is);
 	if (ts->nil == 1 && il < f_len && ts->min == 0 && ts->plus == 0 && ts->space == 0)
@@ -228,6 +233,8 @@ char 	*handle_digit(va_list ap, t_spec *ts)
 	else if ((ts->plus == 1 && ts->min == 0 && ts->nil == 1) || (ts->plus == 1 && ts->min == 0 && ts->width != 0))
 	{
 		j = 0;
+		if (il == f_len)
+			f_len++;
 		if (ts->prec != 0)
 		{
 			while (j < f_len - max(il, ts->prec))
@@ -235,7 +242,7 @@ char 	*handle_digit(va_list ap, t_spec *ts)
 				fs[j] = ' ';
 				j++;
 			}
-			while (j < f_len - min(il, ts->prec))
+			while (j < f_len - il)
 			{
 				fs[j] = '0';
 				j++;
@@ -256,7 +263,6 @@ char 	*handle_digit(va_list ap, t_spec *ts)
 		}
 		else
 		{
-			f_len++;
 			//write(1, "douche!\n", 8);
 			if (i > 0)
 				fs[j++] = '+';
@@ -328,7 +334,8 @@ char 	*handle_digit(va_list ap, t_spec *ts)
 	}
 	else if (ts->plus == 1 && ts->nil == 0 && ts->width == 0 && ts->prec != 0)
 	{
-		f_len++;
+		if (il == f_len)
+			f_len++;
 		j = 0;
 		if (i > 0)
 				fs[j++] = '+';
@@ -349,7 +356,8 @@ char 	*handle_digit(va_list ap, t_spec *ts)
 	}
 	else if (ts->plus == 0 && ts->space == 1 && ts->nil == 0 && ts->width == 0 && ts->prec != 0)
 	{
-		f_len++;
+		if (il == f_len)
+			f_len++;
 		j = 0;
 		fs[j++] = ' ';
 		//write(1, "douche!\n", 8);
@@ -854,10 +862,10 @@ int	ft_printf(char *fmt, ...)
 
 int main()
 {
-	ft_printf("My_printf: |%+013.8d| %%|", 1278);
+	ft_printf("My_printf: |%+011.8zd| %%!", -1234567);
 	write(1, "\n", 1);
 	//printf("%-+8d", 1234);
-	printf("DefPrintf: |%+013.8d| %%|", 1278);
+	printf("DefPrintf: |%+011.8zd| %%!", -1234567);
 	printf("\n");
 	//printf("%+07.5d", 1234);
 	return (0);
