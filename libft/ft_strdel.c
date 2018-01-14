@@ -1,32 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstremove.c                                     :+:      :+:    :+:   */
+/*   ft_strdel.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akupriia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/12/09 15:53:12 by akupriia          #+#    #+#             */
-/*   Updated: 2017/12/09 15:53:13 by akupriia         ###   ########.fr       */
+/*   Created: 2017/10/26 18:46:41 by akupriia          #+#    #+#             */
+/*   Updated: 2017/10/26 18:46:42 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-static t_list	*lstremove(t_list *lst, void *ptr)
-{
-	t_list *temp;
+#include "libft.h"
 
-	if (!lst)
-		return (NULL);
-	if (lst->content == ptr)
+void	ft_strdel(char **as)
+{
+	if (as)
 	{
-		temp = lst->next;
-		ft_memdel((void **)&lst);
-		return (temp);
+		free(*as);
+		*as = NULL;
 	}
-	lst->next = lstremove(lst->next, ptr);
-	return (lst);
-}
-
-void	ft_lstremove(t_list **lst, void *ptr)
-{
-	*lst = lstremove(*lst, ptr);
 }

@@ -16,6 +16,7 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
+# include <stdio.h>
 
 typedef struct	s_list
 {
@@ -90,6 +91,5 @@ size_t			ft_nbrlen(intmax_t n);
 int				ft_dectooct(int n);
 double			ft_power(int n, int pow);
 char			*ft_itoa_base(intmax_t value, int base);
-void			ft_lstpush(t_list **alst, t_list *new);
 
 #endif
