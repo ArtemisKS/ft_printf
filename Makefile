@@ -92,6 +92,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	ar rc $(NAME) $(OBJ)
+	runlib $(NAME)
 
 %.o: %.c
 	gcc $(FLAGS) -c $< -o $@
