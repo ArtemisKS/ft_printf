@@ -81,6 +81,8 @@ SRC = 	libft/ft_putchar.c \
 		libft/ft_memcpy.c \
 		libft/ft_memccpy.c \
 		libft/libft.h \
+		libft/ft_itoa_base_u.c \
+		libft/ft_nbrlen_u.c \
 		ft_printf.c
 
 

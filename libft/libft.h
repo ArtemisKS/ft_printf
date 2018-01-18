@@ -91,5 +91,7 @@ size_t			ft_nbrlen(intmax_t n);
 int				ft_dectooct(int n);
 double			ft_power(int n, int pow);
 char			*ft_itoa_base(intmax_t value, int base);
+char			*ft_itoa_base_u(uintmax_t value, int base);
+size_t			ft_nbrlen_u(uintmax_t n);
 
 #endif
