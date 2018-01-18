@@ -6,7 +6,7 @@
 #    By: akupriia <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/01/13 19:56:11 by akupriia          #+#    #+#              #
-#    Updated: 2018/01/13 19:56:12 by akupriia         ###   ########.fr        #
+#    Updated: 2018/01/18 20:00:48 by akupriia         ###   ########.fr        #
 #                                                                              #
 #******************************************************************************#
 
@@ -92,7 +92,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	ar rc $(NAME) $(OBJ)
-	runlib $(NAME)
+	ranlib $(NAME)
 
 %.o: %.c
 	gcc $(FLAGS) -c $< -o $@
