@@ -160,28 +160,33 @@ char	*handle_str(t_spec *ts, char *s)
 		// write(1, "\n", 1);
 		// ft_putnbr(il);
 		// write(1, "\n", 1);
-		if (ts->prec != 0)
+		if ((int)ts->prec > il)
 		{
-			if (ts->width != 0)
-			{
-				if (s[0])
-					while (j < f_len - (int)ts->prec)
-					{
-						//write(1, "douche!\n", 8);
-						fs[j] = ' ';
-						j++;
-					}
-			}
 			j1 = 0;
 			// ft_putnbr(f_len);
 			// write(1, "\n", 1);
-			if (s[0])
-				while (j < f_len)
+			if (s[0] && ts->width != 0)
+			{
+				while (j < f_len - (int)ts->prec)
+						fs[j++] = ' ';
+				while (j < f_len - il)
+					fs[j++] = ' ';
+				while (j < f_len && j1 < (int)ft_strlen(is))
 				{
 					fs[j] = is[j1];
 					j++;
 					j1++;
 				}
+			}
+			else if (!ts->width)
+			{
+				while (j < f_len && j1 < (int)ft_strlen(is))
+				{
+					fs[j] = is[j1];
+					j++;
+					j1++;
+				}
+			}
 			else
 			{
 				if (f_len != (int)ts->prec)
@@ -191,17 +196,26 @@ char	*handle_str(t_spec *ts, char *s)
 						j++;
 					}
 			}
-
 		}
 		else
 		{
-			while (j < f_len - (int)il)
+			if (!ts->width)
 			{
-				fs[j] = ' ';
-				j++;
+				if (!ts->prec)
+				while (j < f_len - (int)il)
+				{
+					fs[j] = ' ';
+					j++;
+				}
+			else
+				while (j < f_len - (int)ts->prec)
+				{
+					fs[j] = ' ';
+					j++;
+				}
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -265,7 +279,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 			// ft_putstr(fs);
  		// 	write(1, "\n", 1);
 	}
-	else if (ts->nil == 1 && il < f_len && ts->min == 0 && ts->plus == 0 && ts->space == 0 && i >= 0)
+	else if (ts->nil == 1 && ts->min == 0 && ts->plus == 0 && ts->space == 0 && i >= 0)
 	{
 		j = 0;
 		//write(1, "douche!\n", 8);
@@ -1191,8 +1205,17 @@ char*	handle_unsigned(va_list ap, t_spec *ts, char c)
 			j++;
 		}
 	return (fs);
+}
 
+char	*handle_pointer(va_list ap, t_spec *ts)
+{
+	char *fs;
+	uintmax_t i;
 
+	i = va_arg(ap, uintmax_t);
+	ts->hash = 1;
+	fs = print_unsigned(ts, i, 2);
+	return (fs);
 }
 
 char	*print_format(va_list ap, t_spec *ts, char c)
@@ -1208,6 +1231,8 @@ char	*print_format(va_list ap, t_spec *ts, char c)
  		res = handle_char(ap, ts);
  	else if (c == 's')
  	 	res = handle_string(ap, ts);
+ 	else if (c == 'p')
+ 		res = handle_pointer(ap, ts);
  	else if (c == '%')
  		res = handle_percent(ts);
 	return (res);
@@ -1339,6 +1364,20 @@ int		parse_spec(char *fmt, t_spec *ts)
 	return (i);
 }
 
+int		is_type(char c)
+{
+	int		i;
+	char	*s = "psScCdDioOuUxX%";
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i++] == c)
+			return (1);
+	}
+	return (0);
+}
+
 int		parse_format(va_list ap, char *fmt)
 {
 	//int d, 
@@ -1364,13 +1403,21 @@ int		parse_format(va_list ap, char *fmt)
 			i += parse_spec(&fmt[i], ts);
 			// write(1, &fmt[i], 1);
 			// write(1, "\n", 1);
-			s = print_format(ap, ts, fmt[i]);
-			if (!s)
-				s = ft_strdup("(null)");
-			ft_putstr(s);
-			j += ft_strlen(s);
-			if (s[ft_strlen(s) - 1] == '@' && s[ft_strlen(s) - 2] == '^')
-				j--;
+			if (is_type(fmt[i]))
+			{
+				s = print_format(ap, ts, fmt[i]);
+				if (!s)
+					s = ft_strdup("(null)");
+				ft_putstr(s);
+				j += ft_strlen(s);
+				if (s[ft_strlen(s) - 1] == '@' && s[ft_strlen(s) - 2] == '^')
+					j--;
+			}
+			else
+			{
+				write(1, &fmt[i], 1);
+				j++;
+			}
 			//out = ft_strjoin(out, s);
 			//j = i + 1;
 			//print_struct(ts);
@@ -1410,7 +1457,11 @@ int	ft_printf(char *fmt, ...)
 
 // int main()
 // {
-// 	int n = ft_printf("%10.5d", 4242);
+// 	int i = 4;
+// 	int n = printf("%p", &i);
+// 	//ft_printf("%.4s", "42");
+// 	//ft_printf("%5.2s is a string", "this"); 
+// 	//ft_printf("%.2s is a string", "");
 // 	//ft_printf("%U", 4294967296);  
 // 	// ft_printf("%U", 4294967295);
 // 	//ft_printf("%.2s is a string", ""); 
@@ -1443,7 +1494,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("%10.5d", 4242);
+// 	n = printf("%p", &i);
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
