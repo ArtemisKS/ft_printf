@@ -1168,6 +1168,18 @@ char	*handle_percent(t_spec *ts)
 	return (fs);
 }
 
+char	*ft_lower(char *fs)
+{
+	int j;
+	j = 0;
+	while(fs[j])
+		{
+			fs[j] = ft_tolower(fs[j]);
+			j++;
+		}
+	return (fs);
+}
+
 char*	handle_unsigned(va_list ap, t_spec *ts, char c)
 {
 	char *fs;
@@ -1199,11 +1211,7 @@ char*	handle_unsigned(va_list ap, t_spec *ts, char c)
 	else
 		fs = print_unsigned(ts, i, 2);
 	if (c == 'x')
-		while(fs[j])
-		{
-			fs[j] = ft_tolower(fs[j]);
-			j++;
-		}
+		fs = ft_lower(fs);
 	return (fs);
 }
 
@@ -1215,6 +1223,7 @@ char	*handle_pointer(va_list ap, t_spec *ts)
 	i = va_arg(ap, uintmax_t);
 	ts->hash = 1;
 	fs = print_unsigned(ts, i, 2);
+	fs = ft_lower(fs);
 	return (fs);
 }
 
