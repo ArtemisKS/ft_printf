@@ -1408,45 +1408,45 @@ int	ft_printf(char *fmt, ...)
 	return (n);
 }
 
-int main()
-{
-	int n = ft_printf("%10.5d", 4242);
-	//ft_printf("%U", 4294967296);  
-	// ft_printf("%U", 4294967295);
-	//ft_printf("%.2s is a string", ""); 
-	//ft_printf("%-5%");
-	//ft_printf("%5%");
-	//ft_printf("%#08x", 42);
-	//ft_printf("%#6o", 2500);
-	//ft_printf("%#X", 42);
-	//ft_printf("%#x", 0);
-	//ft_printf("%X", -42);
-	//ft_printf("%#08x", 42);
-	//ft_printf("%#-8x", 42);
-	//ft_printf("%-+8.4d", 42);
-	//ft_printf("%10x", 42);
-	//ft_printf("%2c", 0); 
-	//ft_printf("%5c", 42);
-	//ft_printf("%-.2s is a string", "");
-	//ft_printf("%-.2s is a string", "this");
-	//ft_printf("%5.5s is a string", "");
-	//ft_printf("%.2s is a string", "this");
-	//ft_printf("%10s is a string", "this");
-	//ft_printf("%5d", 42);
-	//ft_printf("%s", "abc");
-	//ft_printf("%0+5d", 42);
-	//ft_printf("@moulitest: %5.d %5.0d", 0, 0); 
-	//int n = ft_printf("%jd", 9223372036854775807);
-	//int n = ft_printf("%zd", 4294967295);
-	//int n = ft_printf("%++d", 42);
-	//int n = ft_printf("My_printf: |%+011.8zd| %%!", -567);
-	printf("\n\t%d\t\n", n);
-	//write(1, "\n", 1);
-	//printf("%-+8d", 1234);
-	n = printf("%10.5d", 4242);
-	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
-	printf("\n\t%d\t\n", n);
-	printf("\n");
-	//printf("%+07.5d", 1234);
-	return (0);
-}
+// int main()
+// {
+// 	int n = ft_printf("%10.5d", 4242);
+// 	//ft_printf("%U", 4294967296);  
+// 	// ft_printf("%U", 4294967295);
+// 	//ft_printf("%.2s is a string", ""); 
+// 	//ft_printf("%-5%");
+// 	//ft_printf("%5%");
+// 	//ft_printf("%#08x", 42);
+// 	//ft_printf("%#6o", 2500);
+// 	//ft_printf("%#X", 42);
+// 	//ft_printf("%#x", 0);
+// 	//ft_printf("%X", -42);
+// 	//ft_printf("%#08x", 42);
+// 	//ft_printf("%#-8x", 42);
+// 	//ft_printf("%-+8.4d", 42);
+// 	//ft_printf("%10x", 42);
+// 	//ft_printf("%2c", 0); 
+// 	//ft_printf("%5c", 42);
+// 	//ft_printf("%-.2s is a string", "");
+// 	//ft_printf("%-.2s is a string", "this");
+// 	//ft_printf("%5.5s is a string", "");
+// 	//ft_printf("%.2s is a string", "this");
+// 	//ft_printf("%10s is a string", "this");
+// 	//ft_printf("%5d", 42);
+// 	//ft_printf("%s", "abc");
+// 	//ft_printf("%0+5d", 42);
+// 	//ft_printf("@moulitest: %5.d %5.0d", 0, 0); 
+// 	//int n = ft_printf("%jd", 9223372036854775807);
+// 	//int n = ft_printf("%zd", 4294967295);
+// 	//int n = ft_printf("%++d", 42);
+// 	//int n = ft_printf("My_printf: |%+011.8zd| %%!", -567);
+// 	printf("\n\t%d\t\n", n);
+// 	//write(1, "\n", 1);
+// 	//printf("%-+8d", 1234);
+// 	n = printf("%10.5d", 4242);
+// 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
+// 	printf("\n\t%d\t\n", n);
+// 	printf("\n");
+// 	//printf("%+07.5d", 1234);
+// 	return (0);
+// }
