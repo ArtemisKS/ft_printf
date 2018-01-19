@@ -77,7 +77,7 @@ char	*min_handle(char *is)
 	return (res);
 }
 
-char	*handle_digstr(t_spec *ts, intmax_t i, char *s, int fl)
+char	*handle_str(t_spec *ts, char *s)
 {
 	int j;
 	int j1;
@@ -86,53 +86,12 @@ char	*handle_digstr(t_spec *ts, intmax_t i, char *s, int fl)
 	int f_len;
 	char *is;
 
-	if (!fl)
-	{
-		if (i < 0)
-			il = ft_nbrlen(i * -1);
-		else
-			il = ft_nbrlen(i);
-	}
-	else if (fl == 1)
-		il = ft_strlen(s);
-	else
-		il = 0;
-	// ft_putnbr(il);
-	// write(1, "\n", 1);
+	il = ft_strlen(s);
 	f_len = max(il, ts->width);
 	f_len = max(f_len, ts->prec);
-	// ft_putstr(is);
-	// write(1, "\n", 1);
-	if (!fl)
-	{
-		is = ft_itoa_base(i, 10);
-		if (i < 0)
-			is = min_handle(is);
-	}
-	else if (fl == 1)
-		is = ft_strdup(s);
-	else
-		is = ft_strdup("");
+	is = ft_strdup(s);
 	fs = (char *)ft_memalloc(f_len + 1);
-
-	if (ts->dot == 1 && ts->prec == 0 && i == 0)
-	{
-		j = 0;
-		if (ts->width == 0)
-		{
-			fs[0] = 0;
-			return  (fs);
-		}
-		else
-		{
-			while (j < f_len)
-			{
-				fs[j] = ' ';
-				j++;
-			}
-		}
-	}
-	else if (ts->min == 1 && fl == 1)
+	if (ts->min == 1)
 	{
 		j = 0;
 		if (ts->prec != 0 && ts->width != 0)
@@ -173,6 +132,120 @@ char	*handle_digstr(t_spec *ts, intmax_t i, char *s, int fl)
 				j++;
 				j1++;
 			}
+			while (j < f_len)
+			{
+				fs[j] = ' ';
+				j++;
+			}
+		}
+	}
+	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 0 && ts->space == 0)
+	{
+		j = 0;
+		// write(1, "douche!\n", 8);
+		// ft_putnbr(f_len);
+		// write(1, "\n", 1);
+		// ft_putstr(s);
+		// write(1, "\n", 1);
+		// ft_putnbr(il);
+		// write(1, "\n", 1);
+		if (ts->prec != 0 && ts->width != 0)
+			f_len = max(ts->prec, ts->width);
+		else if (ts->prec != 0)
+			f_len = ts->prec;
+		// write(1, "douche!\n", 8);
+		// ft_putnbr(f_len);
+		// write(1, "\n", 1);
+		// ft_putstr(s);
+		// write(1, "\n", 1);
+		// ft_putnbr(il);
+		// write(1, "\n", 1);
+		if (ts->prec != 0)
+		{
+			if (ts->width != 0)
+			{
+				if (s[0])
+					while (j < f_len - (int)ts->prec)
+					{
+						//write(1, "douche!\n", 8);
+						fs[j] = ' ';
+						j++;
+					}
+			}
+			j1 = 0;
+			// ft_putnbr(f_len);
+			// write(1, "\n", 1);
+			if (s[0])
+				while (j < f_len)
+				{
+					fs[j] = is[j1];
+					j++;
+					j1++;
+				}
+			else
+			{
+				if (f_len != (int)ts->prec)
+					while (j < f_len)
+					{
+						fs[j] = ' ';
+						j++;
+					}
+			}
+
+		}
+		else
+		{
+			while (j < f_len - (int)il)
+			{
+				fs[j] = ' ';
+				j++;
+			}
+			j1 = 0;
+			while (j < f_len)
+			{
+				fs[j] = is[j1];
+				j++;
+				j1++;
+			}
+		}
+	}
+	return (fs);
+}
+
+char	*handle_dig(t_spec *ts, intmax_t i)
+{
+	int j;
+	int j1;
+	char *fs;
+	int il;
+	int f_len;
+	char *is;
+
+	if (i < 0)
+		il = ft_nbrlen(i * -1);
+	else
+		il = ft_nbrlen(i);
+	// ft_putnbr(il);
+	// write(1, "\n", 1);
+	f_len = max(il, ts->width);
+	f_len = max(f_len, ts->prec);
+	// ft_putstr(is);
+	// write(1, "\n", 1);
+	is = ft_itoa_base(i, 10);
+	if (i < 0)
+		is = min_handle(is);
+	fs = (char *)ft_memalloc(f_len + 1);
+
+	if (ts->dot == 1 && ts->prec == 0 && i == 0)
+	{
+		j = 0;
+		if (ts->width == 0)
+		{
+			fs[0] = 0;
+			return  (fs);
+		}
+		else
+		{
 			while (j < f_len)
 			{
 				fs[j] = ' ';
@@ -279,7 +352,7 @@ char	*handle_digstr(t_spec *ts, intmax_t i, char *s, int fl)
 
 		}
 	}
-	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 0 && ts->space == 0 && i >= 0 && fl == 0)
+	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 0 && ts->space == 0 && i >= 0)
 	{
 		j = 0;
 		// write(1, "douche!\n", 8);
@@ -312,76 +385,6 @@ char	*handle_digstr(t_spec *ts, intmax_t i, char *s, int fl)
 			while (j < f_len - il)
 			{
 				fs[j] = '0';
-				j++;
-			}
-			j1 = 0;
-			while (j < f_len)
-			{
-				fs[j] = is[j1];
-				j++;
-				j1++;
-			}
-		}
-	}
-	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 0 && ts->space == 0 && i >= 0 && fl == 1)
-	{
-		j = 0;
-		// write(1, "douche!\n", 8);
-		// ft_putnbr(f_len);
-		// write(1, "\n", 1);
-		// ft_putstr(s);
-		// write(1, "\n", 1);
-		// ft_putnbr(il);
-		// write(1, "\n", 1);
-		if (ts->prec != 0 && ts->width != 0)
-			f_len = max(ts->prec, ts->width);
-		else if (ts->prec != 0)
-			f_len = ts->prec;
-		// write(1, "douche!\n", 8);
-		// ft_putnbr(f_len);
-		// write(1, "\n", 1);
-		// ft_putstr(s);
-		// write(1, "\n", 1);
-		// ft_putnbr(il);
-		// write(1, "\n", 1);
-		if (ts->prec != 0)
-		{
-			if (ts->width != 0)
-			{
-				if (s[0])
-					while (j < f_len - (int)ts->prec)
-					{
-						//write(1, "douche!\n", 8);
-						fs[j] = ' ';
-						j++;
-					}
-			}
-			j1 = 0;
-			// ft_putnbr(f_len);
-			// write(1, "\n", 1);
-			if (s[0])
-				while (j < f_len)
-				{
-					fs[j] = is[j1];
-					j++;
-					j1++;
-				}
-			else
-			{
-				if (f_len != (int)ts->prec)
-					while (j < f_len)
-					{
-						fs[j] = ' ';
-						j++;
-					}
-			}
-
-		}
-		else
-		{
-			while (j < f_len - (int)il)
-			{
-				fs[j] = ' ';
 				j++;
 			}
 			j1 = 0;
@@ -1107,7 +1110,7 @@ char 	*handle_digit(va_list ap, t_spec *ts, char c)
 	//ft_putnbr(i);
 	// ft_putstr(is);
 	// write(1, "\n", 1);
-	fs = handle_digstr(ts, i, ft_strdup(""), 0);
+	fs = handle_dig(ts, i);
 	return (fs);
 }
 
@@ -1124,7 +1127,7 @@ char 	*handle_string(va_list ap, t_spec *ts)
 	// write(1, "\n", 1);
 	if (!s)
 		return (s);
-	fs = handle_digstr(ts, 0, s, 1);
+	fs = handle_str(ts, s);
 	return (fs);
 }
 
@@ -1199,7 +1202,7 @@ char	*print_format(va_list ap, t_spec *ts, char c)
 	res = (char *)ft_memalloc(1);
  	if (c == 'd' || c == 'D' || c == 'i')
  		res = handle_digit(ap, ts, c);
- 	else if (c == 'u' || c == 'U' || c == 'o' || c == 'o' || c == 'X' || c == 'x')
+ 	else if (c == 'u' || c == 'U' || c == 'o' || c == 'O' || c == 'X' || c == 'x')
  		res = handle_unsigned(ap, ts, c);
  	else if (c == 'c')
  		res = handle_char(ap, ts);
@@ -1339,7 +1342,7 @@ int		parse_spec(char *fmt, t_spec *ts)
 int		parse_format(va_list ap, char *fmt)
 {
 	//int d, 
-	int i, j;
+	int i, j, len;
 	//char c, 
 	char *s;
 	char *out;
@@ -1347,6 +1350,7 @@ int		parse_format(va_list ap, char *fmt)
 
 	i = 0;
 	j = 0;
+	len = 0;
 	//d = va_arg(ap, int);
 	ts = (t_spec *)malloc(sizeof(t_spec));
 	out = (char *)ft_memalloc(1);
@@ -1371,7 +1375,7 @@ int		parse_format(va_list ap, char *fmt)
 			//j = i + 1;
 			//print_struct(ts);
 		}
-		else
+		else if (fmt[i] != '%')
 		{
 			write(1, &fmt[i], 1);
 			j++;
@@ -1404,45 +1408,45 @@ int	ft_printf(char *fmt, ...)
 	return (n);
 }
 
-// int main()
-// {
-// 	int n = ft_printf("%-i", 42);
-// 	//ft_printf("%U", 4294967296);  
-// 	// ft_printf("%U", 4294967295);
-// 	//ft_printf("%.2s is a string", ""); 
-// 	//ft_printf("%-5%");
-// 	//ft_printf("%5%");
-// 	//ft_printf("%#08x", 42);
-// 	//ft_printf("%#6o", 2500);
-// 	//ft_printf("%#X", 42);
-// 	//ft_printf("%#x", 0);
-// 	//ft_printf("%X", -42);
-// 	//ft_printf("%#08x", 42);
-// 	//ft_printf("%#-8x", 42);
-// 	//ft_printf("%-+8.4d", 42);
-// 	//ft_printf("%10x", 42);
-// 	//ft_printf("%2c", 0); 
-// 	//ft_printf("%5c", 42);
-// 	//ft_printf("%-.2s is a string", "");
-// 	//ft_printf("%-.2s is a string", "this");
-// 	//ft_printf("%5.5s is a string", "");
-// 	//ft_printf("%.2s is a string", "this");
-// 	//ft_printf("%10s is a string", "this");
-// 	//ft_printf("%5d", 42);
-// 	//ft_printf("%s", "abc");
-// 	//ft_printf("%0+5d", 42);
-// 	//ft_printf("@moulitest: %5.d %5.0d", 0, 0); 
-// 	//int n = ft_printf("%jd", 9223372036854775807);
-// 	//int n = ft_printf("%zd", 4294967295);
-// 	//int n = ft_printf("%++d", 42);
-// 	//int n = ft_printf("My_printf: |%+011.8zd| %%!", -567);
-// 	printf("\n\t%d\t\n", n);
-// 	//write(1, "\n", 1);
-// 	//printf("%-+8d", 1234);
-// 	n = printf("%-i", 42);
-// 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
-// 	printf("\n\t%d\t\n", n);
-// 	printf("\n");
-// 	//printf("%+07.5d", 1234);
-// 	return (0);
-// }
+int main()
+{
+	int n = ft_printf("%10.5d", 4242);
+	//ft_printf("%U", 4294967296);  
+	// ft_printf("%U", 4294967295);
+	//ft_printf("%.2s is a string", ""); 
+	//ft_printf("%-5%");
+	//ft_printf("%5%");
+	//ft_printf("%#08x", 42);
+	//ft_printf("%#6o", 2500);
+	//ft_printf("%#X", 42);
+	//ft_printf("%#x", 0);
+	//ft_printf("%X", -42);
+	//ft_printf("%#08x", 42);
+	//ft_printf("%#-8x", 42);
+	//ft_printf("%-+8.4d", 42);
+	//ft_printf("%10x", 42);
+	//ft_printf("%2c", 0); 
+	//ft_printf("%5c", 42);
+	//ft_printf("%-.2s is a string", "");
+	//ft_printf("%-.2s is a string", "this");
+	//ft_printf("%5.5s is a string", "");
+	//ft_printf("%.2s is a string", "this");
+	//ft_printf("%10s is a string", "this");
+	//ft_printf("%5d", 42);
+	//ft_printf("%s", "abc");
+	//ft_printf("%0+5d", 42);
+	//ft_printf("@moulitest: %5.d %5.0d", 0, 0); 
+	//int n = ft_printf("%jd", 9223372036854775807);
+	//int n = ft_printf("%zd", 4294967295);
+	//int n = ft_printf("%++d", 42);
+	//int n = ft_printf("My_printf: |%+011.8zd| %%!", -567);
+	printf("\n\t%d\t\n", n);
+	//write(1, "\n", 1);
+	//printf("%-+8d", 1234);
+	n = printf("%10.5d", 4242);
+	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
+	printf("\n\t%d\t\n", n);
+	printf("\n");
+	//printf("%+07.5d", 1234);
+	return (0);
+}
