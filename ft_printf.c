@@ -88,10 +88,10 @@ char	*handle_str(t_spec *ts, char *s)
 
 	il = ft_strlen(s);
 	f_len = max(il, ts->width);
-	f_len = max(f_len, ts->prec);
+	//f_len = max(f_len, ts->prec);
 	is = ft_strdup(s);
 	fs = (char *)ft_memalloc(f_len + 1);
-	if (ts->min == 1)
+	if (ts->min == 1 && ts->nil == 0)
 	{
 		j = 0;
 		if (ts->prec != 0 && ts->width != 0)
@@ -126,7 +126,7 @@ char	*handle_str(t_spec *ts, char *s)
 		else
 		{
 			j1 = 0;
-			while (j < il)
+			while (j < il && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -139,20 +139,62 @@ char	*handle_str(t_spec *ts, char *s)
 			}
 		}
 	}
-	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 0 && ts->space == 0)
+	else if (ts->min == 1 && ts->nil == 1)
 	{
 		j = 0;
-		// write(1, "douche!\n", 8);
-		// ft_putnbr(f_len);
-		// write(1, "\n", 1);
-		// ft_putstr(s);
-		// write(1, "\n", 1);
-		// ft_putnbr(il);
-		// write(1, "\n", 1);
 		if (ts->prec != 0 && ts->width != 0)
 			f_len = max(ts->prec, ts->width);
 		else if (ts->prec != 0)
 			f_len = ts->prec;
+		if (ts->prec != 0)
+		{
+			if (s[0])
+			{
+				j1 = 0;
+				while (j < (int)ts->prec)
+				{
+					fs[j] = is[j1];
+					j++;
+					j1++;
+				}
+				while (j < f_len)
+				{
+					fs[j] = '0';
+					j++;
+				}
+			}
+			else
+				if (f_len != (int)ts->prec)
+					while (j < f_len)
+					{
+						fs[j] = '0';
+						j++;
+					}
+		}
+		else
+		{
+			j1 = 0;
+			while (j < il && j1 < (int)ft_strlen(is))
+			{
+				fs[j] = is[j1];
+				j++;
+				j1++;
+			}
+			while (j < f_len)
+			{
+				fs[j] = '0';
+				j++;
+			}
+		}
+	}
+	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 0 && ts->space == 0)
+	{
+		j = 0;
+		j1 = 0;
+		// if (ts->prec != 0 && ts->width != 0)
+		// 	f_len = max(ts->prec, ts->width);
+		// else if (ts->prec != 0)
+		// 	f_len = ts->prec;
 		// write(1, "douche!\n", 8);
 		// ft_putnbr(f_len);
 		// write(1, "\n", 1);
@@ -167,6 +209,8 @@ char	*handle_str(t_spec *ts, char *s)
 			// write(1, "\n", 1);
 			if (s[0] && ts->width != 0)
 			{
+				// ft_putnbr(f_len);
+				// write(1, "\n", 1);
 				while (j < f_len - (int)ts->prec)
 						fs[j++] = ' ';
 				while (j < f_len - il)
@@ -199,27 +243,139 @@ char	*handle_str(t_spec *ts, char *s)
 		}
 		else
 		{
-			if (!ts->width)
+			if (!ts->prec)
 			{
-				if (!ts->prec)
 				while (j < f_len - (int)il)
 				{
 					fs[j] = ' ';
 					j++;
 				}
-			else
-				while (j < f_len - (int)ts->prec)
+				while (j < f_len && j1 < (int)ft_strlen(is))
 				{
-					fs[j] = ' ';
+					fs[j] = is[j1];
 					j++;
+					j1++;
 				}
 			}
-			j1 = 0;
-			while (j < f_len && j1 < (int)ft_strlen(is))
+			else
 			{
-				fs[j] = is[j1];
-				j++;
-				j1++;
+				if (ts->width != 0)
+				{
+					while (j < f_len - (int)ts->prec)
+					{
+						fs[j] = ' ';
+						j++;
+					}
+					while (j < f_len && j1 < (int)ft_strlen(is))
+					{
+						fs[j] = is[j1];
+						j++;
+						j1++;
+					}
+				}
+				else
+					while (j < (int)ts->prec)
+					{
+						fs[j] = is[j1];
+						j++;
+						j1++;
+					}
+			}
+		}
+	}
+	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 1 && ts->space == 0)
+	{
+		j = 0;
+		j1 = 0;
+		// if (ts->prec != 0 && ts->width != 0)
+		// 	f_len = max(ts->prec, ts->width);
+		// else if (ts->prec != 0)
+		// 	f_len = ts->prec;
+		// write(1, "douche!\n", 8);
+		// ft_putnbr(f_len);
+		// write(1, "\n", 1);
+		// ft_putstr(s);
+		// write(1, "\n", 1);
+		// ft_putnbr(il);
+		// write(1, "\n", 1);
+		if ((int)ts->prec > il)
+		{
+			j1 = 0;
+			// ft_putnbr(f_len);
+			// write(1, "\n", 1);
+			if (s[0] && ts->width != 0)
+			{
+				// ft_putnbr(f_len);
+				// write(1, "\n", 1);
+				while (j < f_len - (int)ts->prec)
+						fs[j++] = '0';
+				while (j < f_len - il)
+					fs[j++] = '0';
+				while (j < f_len && j1 < (int)ft_strlen(is))
+				{
+					fs[j] = is[j1];
+					j++;
+					j1++;
+				}
+			}
+			else if (!ts->width)
+			{
+				while (j < f_len && j1 < (int)ft_strlen(is))
+				{
+					fs[j] = is[j1];
+					j++;
+					j1++;
+				}
+			}
+			else
+			{
+				if (f_len != (int)ts->prec)
+					while (j < f_len)
+					{
+						fs[j] = '0';
+						j++;
+					}
+			}
+		}
+		else
+		{
+			if (!ts->prec)
+			{
+				while (j < f_len - (int)il)
+				{
+					fs[j] = '0';
+					j++;
+				}
+				while (j < f_len && j1 < (int)ft_strlen(is))
+				{
+					fs[j] = is[j1];
+					j++;
+					j1++;
+				}
+			}
+			else
+			{
+				if (ts->width != 0)
+				{
+					while (j < f_len - (int)ts->prec)
+					{
+						fs[j] = '0';
+						j++;
+					}
+					while (j < f_len && j1 < (int)ft_strlen(is))
+					{
+						fs[j] = is[j1];
+						j++;
+						j1++;
+					}
+				}
+				else
+					while (j < (int)ts->prec && j1 < (int)ft_strlen(is))
+					{
+						fs[j] = is[j1];
+						j++;
+						j1++;
+					}
 			}
 		}
 	}
@@ -296,7 +452,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -316,7 +472,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -331,7 +487,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 		{
 			j1 = 0;
 			//write(1, "douche!\n", 8);
-			while (j < il)
+			while (j < il && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -352,7 +508,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 			}
 			j1 = 0;
 			//write(1, "douche!\n", 8);
-			while (j < (int)ts->prec)
+			while (j < (int)ts->prec && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -382,7 +538,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -402,7 +558,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -432,7 +588,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -458,7 +614,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -490,7 +646,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -512,7 +668,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -546,7 +702,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < (int)(ts->prec + 1))
+			while (j < (int)(ts->prec + 1) && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -565,7 +721,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 			else 
 				fs[j++] = '-';
 			j1 = 0;
-			while (j1 < il)
+			while (j1 < il && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -596,7 +752,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 			j++;
 		}
 		j1 = 0;
-		while (j < f_len)
+		while (j < f_len && j1 < (int)ft_strlen(is))
 		{
 			fs[j] = is[j1];
 			j++;
@@ -616,7 +772,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 			j++;
 		}
 		j1 = 0;
-		while (j < f_len)
+		while (j < f_len && j1 < (int)ft_strlen(is))
 		{
 			fs[j] = is[j1];
 			j++;
@@ -637,7 +793,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len - (max(il, ts->prec) - min(il, ts->prec)))
+			while (j < f_len - (max(il, ts->prec) - min(il, ts->prec)) && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -654,7 +810,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 			//write(1, "douche!\n", 8);
 			fs[j++] = ' ';
 			j1 = 0;
-			while (j1 < il)
+			while (j1 < il && j < f_len)
 			{
 				fs[j] = is[j1];
 				j++;
@@ -686,7 +842,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 					j++;
 				}
 				j1 = 0;
-				while (j < f_len)
+				while (j < f_len && j1 < (int)ft_strlen(is))
 				{
 					fs[j] = is[j1];
 					j++;
@@ -703,7 +859,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 					j++;
 				}
 				j1 = 0;
-				while (j < f_len)
+				while (j < f_len && j1 < (int)ft_strlen(is))
 				{
 					fs[j] = is[j1];
 					j++;
@@ -775,7 +931,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 			il++;
 		}
 		j1 = 0;
-		while (j < il)
+		while (j < il && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -810,7 +966,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -830,7 +986,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -838,7 +994,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 			}
 		}
 	}
-	else if (ts->min == 1 && il < f_len)
+	else if (ts->min == 1)
 	{
 		j = 0;
 		if ((int)ts->prec <= il)
@@ -856,7 +1012,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 				il++;
 			}
 			//write(1, "douche!\n", 8);
-			while (j < il)
+			while (j < il && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -877,7 +1033,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 			}
 			j1 = 0;
 			//write(1, "douche!\n", 8);
-			while (j < (int)ts->prec)
+			while (j < (int)ts->prec && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -918,7 +1074,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 			}
 			else if (ts->hash == 1 && fl == 1 && i != 0)
 				fs[j++] = '0';
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -938,7 +1094,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 				j++;
 			}
 			j1 = 0;
-			while (j < f_len)
+			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
 				fs[j] = is[j1];
 				j++;
@@ -961,7 +1117,7 @@ char	*print_char(t_spec *ts, char c)
 	f_len = max(len, ts->width);
 	f_len = max(f_len, ts->prec);
 	fs = (char *)ft_memalloc(f_len + 1);
-	if (ts->min == 0)
+	if (ts->min == 0 && ts->nil == 0)
 	{
 		j = 0;
 		// write(1, "douche!\n", 8);
@@ -1039,7 +1195,85 @@ char	*print_char(t_spec *ts, char c)
 			}
 		}
 	}
-	else if (ts->min == 1)
+	else if (ts->min == 0 && ts->nil == 1)
+	{
+		j = 0;
+		// write(1, "douche!\n", 8);
+		// ft_putnbr(f_len);
+		// write(1, "\n", 1);
+		// ft_putstr(s);
+		// write(1, "\n", 1);
+		// ft_putnbr(il);
+		// write(1, "\n", 1);
+		if (ts->prec != 0 && ts->width != 0)
+			f_len = max(ts->prec, ts->width);
+		else if (ts->prec != 0)
+			f_len = ts->prec;
+		// write(1, "douche!\n", 8);
+		// ft_putnbr(f_len);
+		// write(1, "\n", 1);
+		// ft_putstr(s);
+		// write(1, "\n", 1);
+		// ft_putnbr(il);
+		// write(1, "\n", 1);
+		if (ts->prec != 0)
+		{
+			if (ts->width != 0)
+			{
+				if (c)
+					while (j < f_len - (int)ts->prec)
+					{
+						//write(1, "douche!\n", 8);
+						fs[j] = '0';
+						j++;
+					}
+			}
+			j1 = 0;
+			// ft_putnbr(f_len);
+			// write(1, "\n", 1);
+			if (c)
+				while (j < f_len)
+				{
+					fs[j] = c;
+					j++;
+					j1++;
+				}
+			else
+			{
+				if (f_len != (int)ts->prec)
+					while (j < f_len)
+					{
+						fs[j] = '0';
+						j++;
+					}
+				fs[j++] = '^';
+				fs[j] = '@';
+			}
+
+		}
+		else
+		{
+			while (j < f_len - (int)len)
+			{
+				fs[j] = '0';
+				j++;
+			}
+			j1 = 0;
+			if (c)
+				while (j < f_len)
+				{
+					fs[j] = c;
+					j++;
+					j1++;
+				}
+			else
+			{
+				fs[j++] = '^';
+				fs[j] = '@';
+			}
+		}
+	}
+	else if (ts->min == 1 && ts->nil == 0)
 	{
 		j = 0;
 		if (ts->prec != 0 && ts->width != 0)
@@ -1091,6 +1325,62 @@ char	*print_char(t_spec *ts, char c)
 			while (j < f_len)
 			{
 				fs[j] = ' ';
+				j++;
+			}
+		}
+	}
+	else if (ts->min == 1 && ts->nil == 1)
+	{
+		j = 0;
+		if (ts->prec != 0 && ts->width != 0)
+			f_len = max(ts->prec, ts->width);
+		else if (ts->prec != 0)
+			f_len = ts->prec;
+		if (ts->prec != 0)
+		{
+			if (c)
+			{
+				j1 = 0;
+				while (j < (int)ts->prec)
+				{
+					fs[j] = c;
+					j++;
+					j1++;
+				}
+				while (j < f_len)
+				{
+					fs[j] = '0';
+					j++;
+				}
+			}
+			else
+				if (f_len != (int)ts->prec)
+					while (j < f_len)
+					{
+						fs[j] = '0';
+						j++;
+					}
+				fs[j++] = '^';
+				fs[j] = '@';
+		}
+		else
+		{
+			j1 = 0;
+			if (c)
+				while (j < len)
+				{
+					fs[j] = c;
+					j++;
+					j1++;
+				}
+			else
+			{
+				fs[j++] = '^';
+				fs[j] = '@';
+			}
+			while (j < f_len)
+			{
+				fs[j] = '0';
 				j++;
 			}
 		}
@@ -1224,6 +1514,14 @@ char	*handle_pointer(va_list ap, t_spec *ts)
 	ts->hash = 1;
 	fs = print_unsigned(ts, i, 2);
 	fs = ft_lower(fs);
+	if ((ft_strlen(fs) == 1 && fs[ft_strlen(fs) - 1] == '0') || 
+		(fs[ft_strlen(fs) - 1] == '0' && fs[ft_strlen(fs) - 2] == ' '))
+		fs = ft_strjoin(fs, "x0");
+	else if (fs[0] == '0' && fs[1] == ' ' && fs[2] == ' ')
+	{
+		fs[1] = 'x';
+		fs[2] = '0';
+	}
 	return (fs);
 }
 
@@ -1387,6 +1685,23 @@ int		is_type(char c)
 	return (0);
 }
 
+char	*str_zero(char *fs)
+{
+	int i;
+	char *s;
+
+	i = 0;
+	s = (char*)ft_memalloc(ft_strlen(fs) - 1);
+	while (fs[i])
+	{
+		if (fs[i] == '^')
+			return (s);
+		s[i] = fs[i];
+		i++;
+	}
+	return (NULL);
+}
+
 int		parse_format(va_list ap, char *fmt)
 {
 	//int d, 
@@ -1399,6 +1714,7 @@ int		parse_format(va_list ap, char *fmt)
 	i = 0;
 	j = 0;
 	len = 0;
+	int fl = 0;
 	//d = va_arg(ap, int);
 	ts = (t_spec *)malloc(sizeof(t_spec));
 	out = (char *)ft_memalloc(1);
@@ -1417,10 +1733,18 @@ int		parse_format(va_list ap, char *fmt)
 				s = print_format(ap, ts, fmt[i]);
 				if (!s)
 					s = ft_strdup("(null)");
-				ft_putstr(s);
-				j += ft_strlen(s);
 				if (s[ft_strlen(s) - 1] == '@' && s[ft_strlen(s) - 2] == '^')
-					j--;
+				{
+					fl = 1;
+					s = str_zero(s);
+				}
+				ft_putstr(s);
+				if (fl)
+				{
+					write(1, "", 1);
+					j++;
+				}
+				j += ft_strlen(s);
 			}
 			else
 			{
@@ -1466,8 +1790,13 @@ int	ft_printf(char *fmt, ...)
 
 // int main()
 // {
-// 	int i = 4;
-// 	int n = printf("%p", &i);
+// 	int strlen = 4;
+// 	int n = ft_printf("{%05s}", "abc");
+// 	//ft_printf("{%03c}", 0);
+// 	//ft_printf("%.2s is a string", "this"); 
+// 	//ft_printf("%5.2s is a string", "this");
+// 	//ft_printf("%4.15s", "42");
+// 	//ft_printf("{%5p}", 0);
 // 	//ft_printf("%.4s", "42");
 // 	//ft_printf("%5.2s is a string", "this"); 
 // 	//ft_printf("%.2s is a string", "");
@@ -1503,7 +1832,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("%p", &i);
+// 	n = printf("{%05s}", "abc");
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
