@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+#include <locale.h>
 
 void	print_struct(t_spec *ts)
 {
@@ -949,7 +950,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 			// ft_putstr(fs);
  		// 	write(1, "\n", 1);
 	}
-	else if (ts->nil == 1 && il < f_len && ts->min == 0)
+	else if (ts->nil == 1 && ts->min == 0)
 	{
 		j = 0;
 		//write(1, "douche!\n", 8);
@@ -957,23 +958,31 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 		// write(1, "\n", 1);
 		if ((int)ts->prec <= il)
 		{
-			while (j < f_len - max(max(il, ts->prec), ts->width))
-			{
-				fs[j] = ' ';
-				j++;
-			}
+			// while (j < f_len - max(max(il, ts->prec), ts->width))
+			// {
+			// 	fs[j] = ' ';
+			// 	j++;
+			// }
 			if (ts->hash == 1 && fl == 2 && i != 0)
 			{
 				fs[j++] = '0';
 				fs[j++] = 'X';
+				if ((int)ts->width < il)
+					f_len += 2;
 			}
 			else if (ts->hash == 1 && fl == 1 && i != 0)
+			{
 				fs[j++] = '0';
+				if ((int)ts->width < il)
+					f_len++;
+			}
 			while (j < f_len - il)
 			{
 				fs[j] = '0';
 				j++;
 			}
+			// ft_putnbr(f_len);
+			// write(1, "\n", 1);
 			j1 = 0;
 			while (j < f_len && j1 < (int)ft_strlen(is))
 			{
@@ -1426,12 +1435,131 @@ char 	*handle_digit(va_list ap, t_spec *ts, char c)
 	return (fs);
 }
 
-char 	*handle_string(va_list ap, t_spec *ts)
+int		size_bin(int value)
+{
+	char *vbin;
+	int len;
+
+	vbin = ft_itoa_base(value, 2);
+	//ft_putstr(vbin);
+	//write(1, "\n", 1);
+	len = ft_strlen(vbin);
+	return (len);
+}
+
+char	*print_unicode(int value)
+{
+	//unsigned int mask0 = 0;
+	unsigned int mask1 = 49280;
+	unsigned int mask2 = 14712960;
+	unsigned int mask3 = 4034953344;
+ 
+
+ 	unsigned int v = value;
+	int size = size_bin(value);
+	//int res = 0;
+	//printf("size %d\n", size);
+	unsigned char octet;
+	char *res;
+
+if (size <= 7)
+	{
+		octet = value;
+		res = (char *)ft_memalloc(2);
+		res[0] = octet;
+		res[1] = 0;
+		//write(1, &octet, 1);
+		return (res);
+	}
+	else  if (size <= 11)
+	{
+		unsigned char o2 = (v << 26) >> 26; // Восстановление первых 6 бит 110xxxxx 10(xxxxxx)
+		unsigned char o1 = ((v >> 6) << 27) >> 27; // Восстановление последних 5 бит 110(xxxxx) 10xxxxxx
+       
+		octet = (mask1 >> 8) | o1; // Применение первой битовой маски ко первому байту
+		res = (char *)ft_memalloc(3);
+		res[0] = octet;
+		//write(1, &octet, 1);
+		octet = ((mask1 << 24) >> 24) | o2; // Применение второй битовой маски ко второму байту
+		res[1] = octet;
+		res[2] = 0;
+		//write(1, &octet, 1);
+		return (res);
+		//write(1, "\n", 1);
+	}
+	else  if (size <= 16)
+	{
+		unsigned char o3 = (v << 26) >> 26; // Восстановление первых 6 бит 1110xxxx 10xxxxxx 10(xxxxxx)
+		unsigned char o2 = ((v >> 6) << 26) >> 26; // Восстановление вторых 6 бит 1110xxxx 10(xxxxxx) 10xxxxxx
+		unsigned char o1 = ((v >> 12) << 28) >> 28; // Восстановление последних 4 бит 1110(xxxx) 10xxxxxx 10xxxxxx
+       
+		octet = (mask2 >> 16) | o1; // Применение первой битовой маски ко первому байту
+		res = (char *)ft_memalloc(4);
+		res[0] = octet;
+		//write(1, &octet, 1);
+		octet = ((mask2 << 16) >> 24) | o2; // Применение второй битовой маски ко второму байту
+		res[1] = octet;
+		//write(1, &octet, 1);
+		octet = ((mask2 << 24) >> 24) | o3; // Применение третьей битовой маски ко третьему байту
+		res[2] = octet;
+		res[3] = 0;
+		return (res);
+		//write(1, &octet, 1);
+		//write(1, "\n", 1);
+	}
+	else
+	{
+		unsigned char o4 = (v << 26) >> 26; // Восстановление первых 6 11110xxx 10xxxxxx 10xxxxxx 10(xxxxxx)
+		unsigned char o3 = ((v >> 6) << 26) >> 26; // Восстановление вторых 6 бит 11110xxx 10xxxxxx 10(xxxxxx) 10xxxxxx
+		unsigned char o2 = ((v >> 12) << 26) >> 26;  // Восстановление третьих 6 бит bits 11110xxx 10(xxxxxx) 10xxxxxx 10xxxxxx
+		unsigned char o1 = ((v >> 18) << 29) >> 29; // Восстановление последних 3 бита 11110(xxx) 10xxxxxx 10xxxxxx 10xxxxxx
+       
+		octet = (mask3 >> 24) | o1; // Применение бит первого байта на первый байт маски
+		res = (char *)ft_memalloc(5);
+		res[0] = octet;
+		//write(1, &octet, 1);
+		octet = ((mask3 << 8) >> 24) | o2; // Применение второй битовой маски ко второму байту
+		//write(1, &octet, 1);
+		res[1] = octet;
+		octet = ((mask3 << 16) >> 24) | o3; // Применение третьей битовой маски ко третьему байту
+		res[2] = octet;
+		//write(1, &octet, 1);
+		octet = ((mask3 << 24) >> 24) | o4; // Применение последней битовой маски ко последнему байту
+		//write(1, &octet, 1);
+		res[3] = octet;
+		res[4] = 0;
+		return (res);
+		//write(1, "\n", 1);
+	}
+}
+
+
+char 	*handle_string(va_list ap, t_spec *ts, char c)
 {
 	char *fs;
 	char *s;
-	
-	s = va_arg(ap, char *);
+	wchar_t *wa;
+	int i;
+
+	i = 0;
+	s = (char *)ft_memalloc(1);
+	if (c == 's')
+		s = va_arg(ap, char *);
+	else
+	{
+		wa = va_arg(ap, wchar_t *);
+		if (wa)
+		{
+			while (wa[i])
+			{
+				s = ft_strjoin(s, print_unicode(wa[i]));
+				i++;
+			}
+			fs = handle_str(ts, s);
+		}
+		else
+			s = NULL;
+	}
 	//printf("%jd\n", i);
 	//printf("%s", is);
 	//ft_putnbr(i);
@@ -1439,22 +1567,36 @@ char 	*handle_string(va_list ap, t_spec *ts)
 	// write(1, "\n", 1);
 	if (!s && !ts->nil && !ts->min)
 		return (s);
-	fs = handle_str(ts, s);
+	if (c == 's')
+		fs = handle_str(ts, s);
 	return (fs);
 }
 
-char	*handle_char(va_list ap, t_spec *ts)
+char	*handle_char(va_list ap, t_spec *ts, char c)
 {
 	char *fs;
-	char c;
+	char ch;
+	int value;
 	
-	c = (char)va_arg(ap, int);
+	value = 0;
+	if (c == 'c')
+	{
+		ch = (char)va_arg(ap, int);
+		fs = print_char(ts, ch);
+	}
+	else
+	{
+		value = va_arg(ap, int);
+		fs = print_unicode(value);
+		if (!fs[0])
+			fs = ft_strdup("^@");
+		fs = handle_str(ts, fs);
+	}
 	//printf("%jd\n", i);
 	//printf("%s", is);
 	//ft_putnbr(i);
 	// ft_putstr(is);
 	// write(1, "\n", 1);
-	fs = print_char(ts, c);
 	return (fs);
 }
 
@@ -1513,7 +1655,45 @@ char*	handle_unsigned(va_list ap, t_spec *ts, char c)
 	return (fs);
 }
 
-char	*cor_pointer(char *fs)
+char	*point_at_beg(char *fs, t_spec *ts)
+{
+	int i;
+	int j;
+	int fl;
+
+	j = 0;
+	i = 0;
+	while (fs[i++] == '0')
+		j++;
+	i = 0;
+	//if ((int)ts->width == j)
+		//fl = ts->width;
+	fl = max(ts->prec, ts->width);
+	if (fl == (int)ts->prec)
+		fl += 2;
+	//if (fl == (int)ts->prec)
+		//fl += 2;
+	fs = ft_strnew(fl);
+	// ft_putnbr(fl);
+	// write(1, "\n", 1);
+	while (i < fl)
+	{
+		if (i == 0)
+			fs[i] = '0';
+		else if (i == 1)
+			fs[i] = 'x';
+		else if (i > 1 && j)
+			fs[i] = '0';
+		else if (i > 1)
+			fs[i] = ' ';
+		if (fs[i] == '0' && i != 0)
+			j--;
+		i++;
+	}
+	return (fs);
+}
+
+char	*cor_pointer(char *fs, t_spec *ts)
 {
 	int i;
 
@@ -1528,19 +1708,14 @@ char	*cor_pointer(char *fs)
 		}
 		if (i == (int)ft_strlen(fs) - 1 && !fs[i + 1])
 			fs = ft_strjoin(fs, "x0");
+		else if (fs[0] == 0)
+			fs = ft_strdup("0x");
 		else if (i == 0)
-			fs = ft_strjoin("0x", fs);
+			fs = point_at_beg(fs, ts);
 		else if (fs[i + 1] && fs[i + 2])
 		{
 			fs[i + 1] = 'x';
 			fs[i + 2] = '0';
-		}
-		else if (fs[0] == 0)
-		{
-			fs = (char *)ft_memalloc(3);
-			fs[0] = '0';
-			fs[1] = 'x';
-			fs[2] = 0;
 		}
 	}
 	return (fs);
@@ -1555,7 +1730,7 @@ char	*handle_pointer(va_list ap, t_spec *ts)
 	ts->hash = 1;
 	fs = print_unsigned(ts, i, 2);
 	fs = ft_lower(fs);
-	fs = cor_pointer(fs);
+	fs = cor_pointer(fs, ts);
 	return (fs);
 }
 
@@ -1568,10 +1743,10 @@ char	*print_format(va_list ap, t_spec *ts, char c)
  		res = handle_digit(ap, ts, c);
  	else if (c == 'u' || c == 'U' || c == 'o' || c == 'O' || c == 'X' || c == 'x')
  		res = handle_unsigned(ap, ts, c);
- 	else if (c == 'c')
- 		res = handle_char(ap, ts);
- 	else if (c == 's')
- 	 	res = handle_string(ap, ts);
+ 	else if (c == 'c' || c == 'C')
+ 		res = handle_char(ap, ts, c);
+ 	else if (c == 's' || c == 'S')
+ 	 	res = handle_string(ap, ts, c);
  	else if (c == 'p')
  		res = handle_pointer(ap, ts);
  	else if (c == '%')
@@ -1775,6 +1950,7 @@ int		parse_format(va_list ap, char *fmt)
 					fl = 1;
 					s = str_zero(s);
 				}
+				//if (fmt[i] != 'C' && fmt[i] != 'S')
 				ft_putstr(s);
 				if (fl)
 				{
@@ -1827,8 +2003,22 @@ int	ft_printf(char *fmt, ...)
 
 // int main()
 // {
+// 	setlocale(LC_ALL, "en_US.UTF-8");
 // 	int strlen = 4;
-// 	int n = ft_printf("%4.s", "42");
+// 	int	x = L'ÁM-^L´';
+// 	int n = ft_printf("%.4S", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
+// 	//ft_printf("{%-15p}", 0);
+// 	//ft_printf("%.5p", 0);
+// 	//ft_printf("{%05p}", &strlen);
+// 	//ft_printf("%#08x", 42);
+// 	//ft_printf("%C", x);
+// 	//ft_printf("%C", 0);
+// 	//ft_printf("%.5p", 0);
+// 	//ft_printf("%.p, %.0p", 0, 0);
+// 	//ft_printf("{%-15p}", 0);
+// 	// int i[2] = {206, 177};
+// 	// write(1, &(i[0]), 1);
+// 	// write(1, &(i[1]), 1);
 // 	//ft_printf("%4.15s", "I am 42");
 // 	//ft_printf("%4.15s", "42 is the answer");
 // 	//ft_printf("%4.15s", "42");
@@ -1885,7 +2075,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("%4.s", "42");
+// 	n = printf("%.4S", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
