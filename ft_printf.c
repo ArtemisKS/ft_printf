@@ -865,9 +865,14 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 			{
 				//write(1, "douche!\n", 8);
 				fs[j++] = ' ';
-				while (j < f_len - il)
+				while (j < f_len - il && ts->nil)
 				{
 					fs[j] = '0';
+					j++;
+				}
+				while (j < f_len - il && !ts->nil)
+				{
+					fs[j] = ' ';
 					j++;
 				}
 				j1 = 0;
@@ -2008,7 +2013,7 @@ int	ft_printf(char *fmt, ...)
 // 	setlocale(LC_ALL, "en_US.UTF-8");
 // 	int strlen = 4;
 // 	int	x = L'ÁM-^L´';
-// 	int n = ft_printf("%04.2i", 42);
+// 	int n = ft_printf("% 4i", 42);
 // 	//ft_printf("|%.10S|", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//ft_printf("{%-15p}", 0);
 // 	//ft_printf("%.5p", 0);
@@ -2078,7 +2083,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("%04.2i", 42);
+// 	n = printf("% 4i", 42);
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
