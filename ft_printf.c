@@ -1552,7 +1552,7 @@ char 	*handle_string(va_list ap, t_spec *ts, char c)
 	s = (char *)ft_memalloc(1);
 	if (c == 's')
 		s = va_arg(ap, char *);
-	else
+	else if (c == 'S' || ts->l)
 	{
 		wa = va_arg(ap, wchar_t *);
 		if (wa)
@@ -1586,12 +1586,13 @@ char	*handle_char(va_list ap, t_spec *ts, char c)
 	int value;
 	
 	value = 0;
+	fs = ft_strnew(1);
 	if (c == 'c')
 	{
 		ch = (char)va_arg(ap, int);
 		fs = print_char(ts, ch);
 	}
-	else
+	else if (c == 'C' || ts->l)
 	{
 		value = va_arg(ap, int);
 		fs = print_unicode(value);
@@ -2013,7 +2014,10 @@ int	ft_printf(char *fmt, ...)
 // 	setlocale(LC_ALL, "en_US.UTF-8");
 // 	int strlen = 4;
 // 	int	x = L'ÁM-^L´';
-// 	int n = ft_printf("% 4i", 42);
+// 	int n = ft_printf("{%05.S}", L"42 c est cool");
+// 	//ft_printf("%lc, %lc", L'ÊM-^ZM-^V', L'ÿ≠');
+// 	//ft_printf("%hhC, %hhC", 0, L'Á±≥');
+// 	//ft_printf("% 4i", 42);
 // 	//ft_printf("|%.10S|", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//ft_printf("{%-15p}", 0);
 // 	//ft_printf("%.5p", 0);
@@ -2083,7 +2087,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("% 4i", 42);
+// 	n = printf("{%05.S}", L"42 c est cool");
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
