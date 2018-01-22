@@ -2006,7 +2006,8 @@ int	ft_printf(char *fmt, ...)
 // 	setlocale(LC_ALL, "en_US.UTF-8");
 // 	int strlen = 4;
 // 	int	x = L'ÁM-^L´';
-// 	int n = ft_printf("%.4S", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
+// 	int n = ft_printf("%4.2i", 42);
+// 	//ft_printf("|%.10S|", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//ft_printf("{%-15p}", 0);
 // 	//ft_printf("%.5p", 0);
 // 	//ft_printf("{%05p}", &strlen);
@@ -2075,7 +2076,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("%.4S", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
+// 	n = printf("%4.2i", 42);
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
