@@ -261,9 +261,11 @@ char	*handle_str(t_spec *ts, char *s)
 						j1++;
 					}
 				}
-				else
-					while (j < f_len)
+				else if (ts->dot && ft_strcmp(is, "^@"))
+					while (j < (int)ts->width)
 						fs[j++] = ' ';
+				else
+					fs = ft_strdup(is);
 			}
 			else
 			{
@@ -292,7 +294,7 @@ char	*handle_str(t_spec *ts, char *s)
 			}
 		}
 	}
-	else if (ts->plus == 0 && ts->min == 0 && ts->nil == 1 && ts->space == 0)
+	else if (ts->min == 0 && ts->nil == 1)
 	{
 		j = 0;
 		j1 = 0;
@@ -350,17 +352,25 @@ char	*handle_str(t_spec *ts, char *s)
 		{
 			if (!ts->prec)
 			{
-				while (j < f_len - (int)il)
+				if (!ts->dot)
 				{
-					fs[j] = '0';
-					j++;
+					while (j < f_len - (int)il)
+					{
+						fs[j] = '0';
+						j++;
+					}
+					while (j < f_len && j1 < (int)ft_strlen(is))
+					{
+						fs[j] = is[j1];
+						j++;
+						j1++;
+					}
 				}
-				while (j < f_len && j1 < (int)ft_strlen(is))
-				{
-					fs[j] = is[j1];
-					j++;
-					j1++;
-				}
+				else if (ts->dot && ft_strcmp(is, "^@"))
+					while (j < (int)ts->width)
+						fs[j++] = '0';
+				else
+					fs = ft_strdup(is);
 			}
 			else
 			{
@@ -1428,7 +1438,7 @@ char 	*handle_digit(va_list ap, t_spec *ts, char c)
 	else if (ts->hh)
 		i = (char)va_arg(ap, int);
 	else if (ts->z == 1)
-		i = (ssize_t)va_arg(ap, size_t);
+		i = (ssize_t)va_arg(ap, ssize_t);
 	else if (ts->j == 1)
 		i = va_arg(ap, intmax_t);
 	else
@@ -1471,6 +1481,7 @@ char	*print_unicode(int value)
 
 if (size <= 7)
 	{
+		//write(1, "erg", 3);
 		octet = value;
 		res = (char *)ft_memalloc(2);
 		res[0] = octet;
@@ -1480,6 +1491,7 @@ if (size <= 7)
 	}
 	else  if (size <= 11)
 	{
+		//write(1, "erg", 3);
 		unsigned char o2 = (v << 26) >> 26; // Восстановление первых 6 бит 110xxxxx 10(xxxxxx)
 		unsigned char o1 = ((v >> 6) << 27) >> 27; // Восстановление последних 5 бит 110(xxxxx) 10xxxxxx
        
@@ -1496,6 +1508,7 @@ if (size <= 7)
 	}
 	else  if (size <= 16)
 	{
+		//write(1, "erg", 3);
 		unsigned char o3 = (v << 26) >> 26; // Восстановление первых 6 бит 1110xxxx 10xxxxxx 10(xxxxxx)
 		unsigned char o2 = ((v >> 6) << 26) >> 26; // Восстановление вторых 6 бит 1110xxxx 10(xxxxxx) 10xxxxxx
 		unsigned char o1 = ((v >> 12) << 28) >> 28; // Восстановление последних 4 бит 1110(xxxx) 10xxxxxx 10xxxxxx
@@ -1516,6 +1529,7 @@ if (size <= 7)
 	}
 	else
 	{
+		//write(1, "erg", 3);
 		unsigned char o4 = (v << 26) >> 26; // Восстановление первых 6 11110xxx 10xxxxxx 10xxxxxx 10(xxxxxx)
 		unsigned char o3 = ((v >> 6) << 26) >> 26; // Восстановление вторых 6 бит 11110xxx 10xxxxxx 10(xxxxxx) 10xxxxxx
 		unsigned char o2 = ((v >> 12) << 26) >> 26;  // Восстановление третьих 6 бит bits 11110xxx 10(xxxxxx) 10xxxxxx 10xxxxxx
@@ -1550,9 +1564,9 @@ char 	*handle_string(va_list ap, t_spec *ts, char c)
 
 	i = 0;
 	s = (char *)ft_memalloc(1);
-	if (c == 's')
+	if (c == 's' && !ts->l)
 		s = va_arg(ap, char *);
-	else if (c == 'S' || ts->l)
+	if (c == 'S' || ts->l)
 	{
 		wa = va_arg(ap, wchar_t *);
 		if (wa)
@@ -1587,12 +1601,12 @@ char	*handle_char(va_list ap, t_spec *ts, char c)
 	
 	value = 0;
 	fs = ft_strnew(1);
-	if (c == 'c')
+	if (c == 'c' && !ts->l)
 	{
 		ch = (char)va_arg(ap, int);
 		fs = print_char(ts, ch);
 	}
-	else if (c == 'C' || ts->l)
+	if (c == 'C' || ts->l)
 	{
 		value = va_arg(ap, int);
 		fs = print_unicode(value);
@@ -1603,7 +1617,7 @@ char	*handle_char(va_list ap, t_spec *ts, char c)
 	//printf("%jd\n", i);
 	//printf("%s", is);
 	//ft_putnbr(i);
-	// ft_putstr(is);
+	// ft_putstr(fs);
 	// write(1, "\n", 1);
 	return (fs);
 }
@@ -1913,7 +1927,7 @@ char	*str_zero(char *fs)
 	s = (char*)ft_memalloc(ft_strlen(fs) - 1);
 	while (fs[i])
 	{
-		if (fs[i] == '^')
+		if (fs[i] == '^' && fs[i + 1] && fs[i + 1] == '@')
 			return (s);
 		s[i] = fs[i];
 		i++;
@@ -1964,6 +1978,7 @@ int		parse_format(va_list ap, char *fmt)
 				{
 					write(1, "", 1);
 					j++;
+					fl = 0;
 				}
 				j += ft_strlen(s);
 			}
@@ -2014,9 +2029,11 @@ int	ft_printf(char *fmt, ...)
 // 	setlocale(LC_ALL, "en_US.UTF-8");
 // 	int strlen = 4;
 // 	int	x = L'ÁM-^L´';
-// 	int n = ft_printf("{%05.S}", L"42 c est cool");
+// 	int n = ft_printf("%S", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//ft_printf("%lc, %lc", L'ÊM-^ZM-^V', L'ÿ≠');
+// 	//ft_printf("{%05.S}", L"42 c est cool");
 // 	//ft_printf("%hhC, %hhC", 0, L'Á±≥');
+// 	//ft_printf("%lc, %lc", L'ÊM-^ZM-^V', L'ÿ≠');
 // 	//ft_printf("% 4i", 42);
 // 	//ft_printf("|%.10S|", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//ft_printf("{%-15p}", 0);
@@ -2087,7 +2104,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("{%05.S}", L"42 c est cool");
+// 	n = printf("%S", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
