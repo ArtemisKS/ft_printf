@@ -1438,7 +1438,7 @@ char 	*handle_digit(va_list ap, t_spec *ts, char c)
 	else if (ts->hh)
 		i = (char)va_arg(ap, int);
 	else if (ts->z == 1)
-		i = (ssize_t)va_arg(ap, ssize_t);
+		i = va_arg(ap, ssize_t);
 	else if (ts->j == 1)
 		i = va_arg(ap, intmax_t);
 	else
