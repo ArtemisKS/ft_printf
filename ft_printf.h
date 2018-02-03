@@ -25,6 +25,8 @@ typedef struct	s_spec
 	unsigned int	plus : 1;
 	unsigned int	nil : 1;
 	unsigned int	dot : 1;
+	unsigned int	asterisk1 : 1;
+	unsigned int	asterisk2 : 1;
 	unsigned int	width;
 	unsigned int	prec;
 	unsigned int	hh : 1;
