@@ -114,39 +114,43 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 				j1 = 0;
 				int n = 0;
 				int cnt = 0;
+				int n_sum = 0;
 				if (c == 's')
 					while (j < (int)ts->prec && j1 < (int)ft_strlen(is))
 					{
-						fs[j] = is[j1];
-						j++;
+						fs[j++] = is[j1];
 						j1++;
 					}
+					// write(1, "precision :\n", 11);
+					// ft_putnbr(f_len);
+					// write(1, "\n", 1);
 				else if (c == 'S')
 					while (j < (int)ts->prec)
 					{
-						while (cnt < ia[n])
+						n_sum += ia[n];
+						if (n_sum > (int)ts->prec)
+							break ;
+						while (cnt < ia[n] && j1 < (int)ft_strlen(is))
 						{
 							fs[j++] = is[j1];
 							j1++;
-							if (j == (int)ts->prec - 1)
-								break ;
+							cnt++;
+							// if (j == (int)ts->prec - 1)
+							// 	break ;
 						}
-						if (j == (int)ts->prec - 1)
-								break ;
+						// if (j == (int)ts->prec - 1)
+						// 		break ;
 						n++;
 						cnt = 0;
 					}
 				while (j < f_len && il != 0)
-				{
-					fs[j] = ' ';
-					j++;
-				}
+					fs[j++] = ' ';
 				if (f_len != (int)ts->prec)
 					while (j < f_len)
-					{
-						fs[j] = ' ';
-						j++;
-					}
+						fs[j++] = ' ';
+					// write(1, "j :\n", 4);
+					// ft_putnbr(j);
+					// write(1, "\n", 1);
 		}
 		else
 		{
@@ -247,6 +251,7 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 			{
 				int n = 0;
 				int cnt = 0;
+				int n_sum = 0;
 				if (ts->width)
 				{
 					int fl;
@@ -268,45 +273,43 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 					else if (c == 'S')
 					{
 						while (ia[n])
-							if (ia[n++] == 1)
+						{
+							n_sum += ia[n];
+							// write(1, "n-sum :\n", 8);
+							// ft_putnbr(n_sum);
+							// write(1, "\n", 1);
+							if (n_sum == (int)ts->prec)
 								fl = 1;
-						if (ts->width > ts->prec && !fl)
-								fs[j++] = ' ';
-							fl = 0;
-							// c1 = j + '0';
-							// 		write(1, &c1, 1);
-							// 		write(1, "\n", 1);
-							while (j < f_len && j1 < (int)ft_strlen(is))
+							else if (n_sum > (int)ts->prec)
 							{
-								while (cnt < ia[n])
-								{
-									// c1 = ia[n] + '0';
-									// write(1, &c1, 1);
-									// write(1, "\n", 1);
-									fs[j] = is[j1];
-									j1++;
-									cnt++;
-									if (j == f_len - 1)
-									{
-										// if (ts->width > ts->prec)
-										// {
-										// 	while (fs[j] != ' ')
-										// 	{
-										// 		fs[j + 1] = fs[j];
-										// 		j--;
-										// 	}
-										// 	fs[j + 1] = ' ';
-										// }
-										fl = 1;
-										break ;
-									}
-									j++;
-								}
-								if (fl)
-										break ;
-								n++;
-								cnt = 0;
+								n_sum -= (int)ts->prec;
+								break ;
 							}
+							n++;
+						}
+						n = 0;
+						while (!fl && n++ < n_sum)
+							fs[j++] = ' ';
+						n = 0;
+						n_sum = 0;
+						while (j < f_len && j1 < (int)ft_strlen(is))
+						{
+							n_sum += ia[n];
+							if (n_sum > (int)ts->prec)
+							{
+								while (j < f_len)
+									fs[j++] = ' ';
+								break ;
+							}
+							while (cnt < ia[n])
+							{
+								fs[j++] = is[j1];
+								j1++;
+								cnt++;
+							}
+							n++;
+							cnt = 0;
+						}
 					}
 				}
 				else
@@ -319,17 +322,39 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 							j1++;
 						}
 					else if (c == 'S')
+						// while (j < (int)ts->prec)
+						// {
+						// 	while (cnt < ia[n])
+						// 	{
+						// 		fs[j++] = is[j1];
+						// 		j1++;
+						// 		if (j == (int)ts->prec - 1)
+						// 			break ;
+						// 	}
+						// 	if (j == (int)ts->prec - 1)
+						// 			break ;
+						// 	n++;
+						// 	cnt = 0;
+						// }
 						while (j < (int)ts->prec)
 						{
+							n_sum += ia[n];
+							if (n_sum > (int)ts->prec)
+							{
+								while (j++ < f_len)
+									;
+								break ;
+							}
 							while (cnt < ia[n])
 							{
 								fs[j++] = is[j1];
 								j1++;
-								if (j == (int)ts->prec - 1)
-									break ;
+								cnt++;
+								// if (j == (int)ts->prec - 1)
+								// 	break ;
 							}
-							if (j == (int)ts->prec - 1)
-									break ;
+							// if (j == (int)ts->prec - 1)
+							// 		break ;
 							n++;
 							cnt = 0;
 						}
@@ -421,13 +446,12 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 			}
 			else
 			{
+				int n = 0;
+				int cnt = 0;
+				int fl = 0;
+				int n_sum = 0;
 				if (ts->width)
 				{
-					int n = 0;
-					int cnt = 0;
-					int fl;
-
-					fl = 0;
 					while (j < f_len - (int)ts->prec)
 					{
 						fs[j] = '0';
@@ -442,40 +466,121 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 						}
 					else if (c == 'S')
 					{
+						// while (ia[n])
+						// 	if (ia[n++] == 1)
+						// 		fl = 1;
+						// if (ts->width > ts->prec && !fl)
+						// 		fs[j++] = '0';
+						// 	fl = 0;
+						// while (j < f_len && j1 < (int)ft_strlen(is))
+						// {
+						// 	while (cnt < ia[n])
+						// 	{
+						// 		fs[j] = is[j1];
+						// 		j1++;
+						// 		cnt++;
+						// 		if (j == f_len - 1)
+						// 		{
+						// 			fl = 1;
+						// 			break ;
+						// 		}
+						// 		j++;
+						// 	}
+						// 	if (fl)
+						// 			break ;
+						// 	n++;
+						// 	cnt = 0;
+						// }
+						// write(1, "precision :\n", 11);
+						// ft_putnbr(ts->prec);
+						// write(1, "\n", 1);
 						while (ia[n])
-							if (ia[n++] == 1)
+						{
+							n_sum += ia[n];
+							// write(1, "n-sum :\n", 8);
+							// ft_putnbr(n_sum);
+							// write(1, "\n", 1);
+							if (n_sum == (int)ts->prec)
 								fl = 1;
-						if (ts->width > ts->prec && !fl)
-								fs[j++] = '0';
-							fl = 0;
+							else if (n_sum > (int)ts->prec)
+							{
+								n_sum -= (int)ts->prec;
+								break ;
+							}
+							n++;
+						}
+						n = 0;
+						while (!fl && n++ < n_sum)
+							fs[j++] = '0';
+						n = 0;
+						n_sum = 0;
 						while (j < f_len && j1 < (int)ft_strlen(is))
 						{
+							n_sum += ia[n];
+							if (n_sum > (int)ts->prec)
+							{
+								while (j < f_len)
+									fs[j++] = ' ';
+								break ;
+							}
 							while (cnt < ia[n])
 							{
-								fs[j] = is[j1];
+								fs[j++] = is[j1];
 								j1++;
 								cnt++;
-								if (j == f_len - 1)
-								{
-									fl = 1;
-									break ;
-								}
-								j++;
 							}
-							if (fl)
-									break ;
 							n++;
 							cnt = 0;
 						}
 					}
 				}
 				else
-					while (j < (int)ts->prec && j1 < (int)ft_strlen(is))
-					{
-						fs[j] = is[j1];
-						j++;
-						j1++;
-					}
+				{
+					if (c == 's')
+						while (j < (int)ts->prec && j1 < (int)ft_strlen(is))
+						{
+							fs[j] = is[j1];
+							j++;
+							j1++;
+						}
+					else if (c == 'S')
+						// while (j < (int)ts->prec)
+						// {
+						// 	while (cnt < ia[n])
+						// 	{
+						// 		fs[j++] = is[j1];
+						// 		j1++;
+						// 		if (j == (int)ts->prec - 1)
+						// 			break ;
+						// 	}
+						// 	if (j == (int)ts->prec - 1)
+						// 			break ;
+						// 	n++;
+						// 	cnt = 0;
+						// }
+						while (j < (int)ts->prec)
+						{
+							n_sum += ia[n];
+							if (n_sum > (int)ts->prec)
+							{
+								while (j++ < f_len)
+									;
+								break ;
+							}
+							while (cnt < ia[n])
+							{
+								fs[j++] = is[j1];
+								j1++;
+								cnt++;
+								// if (j == (int)ts->prec - 1)
+								// 	break ;
+							}
+							// if (j == (int)ts->prec - 1)
+							// 		break ;
+							n++;
+							cnt = 0;
+						}
+				}
 			}
 		}
 	}
@@ -1299,7 +1404,7 @@ char	*print_char(t_spec *ts, char *s)
 							j++;
 						}
 					else
-						while (j < f_len - ft_strlen(s))
+						while (j < f_len - (int)ft_strlen(s))
 						{
 							fs[j] = ' ';
 							j++;
@@ -1379,7 +1484,7 @@ char	*print_char(t_spec *ts, char *s)
 							j++;
 						}
 					else
-						while (j < f_len - ft_strlen(s))
+						while (j < f_len - (int)ft_strlen(s))
 						{
 							fs[j] = '0';
 							j++;
@@ -2175,7 +2280,9 @@ int	ft_printf(char *fmt, ...)
 // 	setlocale(LC_ALL, "en_US.UTF-8");
 // 	int strlen = 4;
 // 	int	x = L'ÁM-^L´';
-// 	int n = ft_printf("%C, %-5.C", 0, L'米');
+// 	int n = ft_printf("%C, %-13.8S", 0, L"米фып");
+// 	//ft_printf("%C, %-20.9s", 0, "douche1docuhe2");
+// 	//ft_printf("%C, %-5.9S", 0, L"米фып");
 // 	//ft_printf("%-015.5S", L"Темкаитемкаитемкаитемка");
 // 	//ft_printf("%015.5s", "o[jasrgjajfdohssdjfghjodihjdgodghgdhdshfgih");
 // 	//ft_printf("%4.16S", L"Темкаитемкаитемкаитемка");
@@ -2260,7 +2367,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("%C, %-5.C", 0, L'米');
+// 	n = printf("%C, %-13.8S", 0, L"米фып");
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
