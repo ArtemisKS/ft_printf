@@ -245,7 +245,10 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 					while (j < (int)ts->width)
 						fs[j++] = ' ';
 				else
+				{
+					ft_strdel(&fs);
 					fs = ft_strdup(is);
+				}
 			}
 			else
 			{
@@ -282,14 +285,26 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 								fl = 1;
 							else if (n_sum > (int)ts->prec)
 							{
-								n_sum -= (int)ts->prec;
+								if (ia[n - 1])
+								{
+									n_sum -= ia[n];
+									if (ia[n - 1] + n_sum <= (int)ts->prec)
+										n_sum = ia[n - 1];
+									else
+										n_sum = (int)ts->prec - ia[n - 1];
+								}
+								else
+									n_sum -= (int)ts->prec;
 								break ;
 							}
 							n++;
 						}
 						n = 0;
 						while (!fl && n++ < n_sum)
+						{
+							//write(1, "ff", 2);
 							fs[j++] = ' ';
+						}
 						n = 0;
 						n_sum = 0;
 						while (j < f_len && j1 < (int)ft_strlen(is))
@@ -442,7 +457,10 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 					while (j < (int)ts->width)
 						fs[j++] = '0';
 				else
+				{
+					ft_strdel(&fs);
 					fs = ft_strdup(is);
+				}
 			}
 			else
 			{
@@ -584,6 +602,7 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 			}
 		}
 	}
+	ft_strdel(&is);
 	return (fs);
 }
 
@@ -615,7 +634,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 	is = ft_itoa_base(i, 10);
 	if (i < 0)
 		is = min_handle(is);
-	fs = (char *)ft_memalloc(f_len + 1);
+	fs = (char *)ft_strnew(2 * f_len);
 	if (ts->dot == 1 && ts->prec == 0 && i == 0)
 	{
 		j = 0;
@@ -850,6 +869,7 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				j++;
 				j1++;
 			}
+			//fs[j] = 0;
 			//ft_putnbr(j);
 		}
 	}
@@ -1103,6 +1123,8 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 				}
 			}
 		}
+		ft_strdel(&is);
+		//ft_memdel((void**)&ts);
 		return (fs);
 }
 
@@ -1130,7 +1152,7 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 	// write(1, "\n", 1);
 	if (!fl)
 		is = ft_itoa_base_u(i, 10);
-	fs = (char *)ft_memalloc(f_len + 1);
+	fs = (char *)ft_strnew(2 * f_len);
 	//ft_putstr(is);
 
 	if (ts->dot == 1 && ts->prec == 0 && i == 0)
@@ -1355,8 +1377,10 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 				j++;
 				j1++;
 			}
+			//fs[j] = 0;
 		}
 	}
+	ft_strdel(&is);
 		return (fs);
 }
 
@@ -1628,6 +1652,7 @@ char 	*handle_digit(va_list ap, t_spec *ts, char c)
 	//ft_putnbr(i);
 	// ft_putstr(is);
 	// write(1, "\n", 1);
+	//ft_strdel(&fs);
 	fs = handle_dig(ts, i);
 	return (fs);
 }
@@ -1641,6 +1666,7 @@ int		size_bin(int value)
 	//ft_putstr(vbin);
 	//write(1, "\n", 1);
 	len = ft_strlen(vbin);
+	ft_strdel(&vbin);
 	return (len);
 }
 
@@ -1747,11 +1773,12 @@ if (size <= 7)
 
 char 	*handle_string(va_list ap, t_spec *ts, char c)
 {
-	char *fs;
 	char *s;
 	wchar_t *wa;
 	int i;
 	int ia[100];
+	char *tmp;
+	char *s1;
 
 	i = 0;
 	while (i < 100)
@@ -1759,7 +1786,10 @@ char 	*handle_string(va_list ap, t_spec *ts, char c)
 	i = 0;
 	s = (char *)ft_memalloc(1);
 	if (c == 's' && !ts->l)
+	{
+		ft_strdel(&s);
 		s = va_arg(ap, char *);
+	}
 	if (c == 'S' || ts->l)
 	{
 		wa = va_arg(ap, wchar_t *);
@@ -1767,13 +1797,20 @@ char 	*handle_string(va_list ap, t_spec *ts, char c)
 		{
 			while (wa[i])
 			{
-				s = ft_strjoin(s, print_unicode(wa[i], ia, i));
+				tmp = s;
+				s1 = print_unicode(wa[i], ia, i);
+				s = ft_strjoin(s, s1);
+				ft_strdel(&s1);
+				ft_strdel(&tmp);
 				i++;
 			}
-			fs = handle_str(ts, s, 'S', ia);
+			tmp = s;
+			s = handle_str(ts, s, 'S', ia);
+			ft_strdel(&tmp);
 		}
 		else
-			s = NULL;
+			ft_strdel(&s);
+			//s = NULL;
 	}
 	//printf("%jd\n", i);
 	//printf("%s", is);
@@ -1783,8 +1820,14 @@ char 	*handle_string(va_list ap, t_spec *ts, char c)
 	if (!s && !ts->nil && !ts->min)
 		return (s);
 	if (c == 's')
-		fs = handle_str(ts, s, 's', ia);
-	return (fs);
+	{
+		//tmp = s;
+		s = handle_str(ts, s, 's', ia);
+		//ft_strdel(&tmp);
+	}
+	//ft_strdel(&s);
+	//ft_memdel((void**)&wa);
+	return (s);
 }
 
 char	*handle_char(va_list ap, t_spec *ts, char c)
@@ -1793,24 +1836,36 @@ char	*handle_char(va_list ap, t_spec *ts, char c)
 	int value;
 	int ia[100];
 	int i;
+	char *tmp;
 
 	i = 0;
 	while (i < 100)
 		ia[i++] = 0;
 	value = 0;
 	fs = ft_strnew(1);
+	tmp = fs;
 	if (c == 'c' && !ts->l)
 	{
 		fs[0] = (char)va_arg(ap, int);
+		//ft_strdel(&tmp);
+		//tmp = fs;
 		fs = print_char(ts, fs);
+		ft_strdel(&tmp);
 	}
 	if (c == 'C' || ts->l)
 	{
 		value = va_arg(ap, int);
+		tmp = fs;
 		fs = print_unicode(value, ia, i);
+		ft_strdel(&tmp);
 		if (!fs[0])
+		{
+			ft_strdel(&fs);
 			fs = ft_strdup("^@");
+		}
+		tmp = fs;
 		fs = print_char(ts, fs);
+		ft_strdel(&tmp);
 	}
 	//printf("%jd\n", i);
 	//printf("%s", is);
@@ -1823,9 +1878,12 @@ char	*handle_char(va_list ap, t_spec *ts, char c)
 char	*handle_percent(t_spec *ts)
 {
 	char *fs;
+	char *tmp;
 
 	fs = ft_strdup("%");
+	tmp = fs;
 	fs = print_char(ts, fs);
+	ft_strdel(&tmp);
 	return (fs);
 }
 
@@ -1846,6 +1904,7 @@ char	*handle_unsigned(va_list ap, t_spec *ts, char c)
 	char *fs;
 	uintmax_t i;
 	int j;
+	fs = NULL;
 
 	j = 0;
 	i = 0;
@@ -1894,6 +1953,7 @@ char	*point_at_beg(char *fs, t_spec *ts)
 		fl += 2;
 	//if (fl == (int)ts->prec)
 		//fl += 2;
+	//ft_strdel(&fs);
 	fs = ft_strnew(fl);
 	// ft_putnbr(fl);
 	// write(1, "\n", 1);
@@ -1917,8 +1977,10 @@ char	*point_at_beg(char *fs, t_spec *ts)
 char	*cor_pointer(char *fs, t_spec *ts)
 {
 	int i;
+	char *tmp;
 
 	i = 0;
+	tmp = fs;
 	if (!ft_strchr(fs, 'x'))
 	{
 		while (fs[i])
@@ -1928,11 +1990,20 @@ char	*cor_pointer(char *fs, t_spec *ts)
 			i++;
 		}
 		if (i == (int)ft_strlen(fs) - 1 && !fs[i + 1])
+		{
 			fs = ft_strjoin(fs, "x0");
+			ft_strdel(&tmp);
+		}
 		else if (fs[0] == 0)
+		{
 			fs = ft_strdup("0x");
+			ft_strdel(&tmp);
+		}
 		else if (i == 0)
+		{
 			fs = point_at_beg(fs, ts);
+			ft_strdel(&tmp);
+		}
 		else if (fs[i + 1] && fs[i + 2])
 		{
 			fs[i + 1] = 'x';
@@ -1946,20 +2017,23 @@ char	*handle_pointer(va_list ap, t_spec *ts)
 {
 	char *fs;
 	uintmax_t i;
+	//char *tmp;
 
 	i = va_arg(ap, uintmax_t);
 	ts->hash = 1;
 	fs = print_unsigned(ts, i, 2);
 	fs = ft_lower(fs);
+	//tmp = fs;
 	fs = cor_pointer(fs, ts);
+	//ft_strdel(&tmp);
 	return (fs);
 }
 
 char	*print_format(va_list ap, t_spec *ts, char c)
 {
 	char *res;
+	char *tmp;
 
-	res = ft_strnew(1);
  	if (c == 'd' || c == 'D' || c == 'i')
  		res = handle_digit(ap, ts, c);
  	else if (c == 'u' || c == 'U' || c == 'o' || c == 'O' || c == 'X' || c == 'x')
@@ -1973,9 +2047,12 @@ char	*print_format(va_list ap, t_spec *ts, char c)
  	else if (c == '%')
  		res = handle_percent(ts);
  	else
- 	{
+ 	{	
+ 		res = ft_strnew(1);
+ 		tmp = res;
  		res[0] = c;
  		res = print_char(ts, res);
+ 		ft_strdel(&tmp);
  	}
 	return (res);
 }
@@ -2018,6 +2095,7 @@ int		parse_width(char *fmt, t_spec *ts)
 	}
 	wid[i] = 0;
 	ts->width = ft_atoi(wid);
+	ft_strdel(&wid);
 	return (i);
 }
 
@@ -2038,6 +2116,7 @@ int		parse_pres(char *fmt, t_spec *ts)
 	}
 	prec[i] = 0;
 	ts->prec = ft_atoi(prec);
+	ft_strdel(&prec);
 	return (i);
 }
 
@@ -2124,12 +2203,12 @@ int		parse_spec(char *fmt, t_spec *ts, va_list ap)
 		ts->hh = 1;
 		i += 2;
 	}
-	else if (fmt[i] == 'l' && fmt[i + 1] && fmt[i + 1] != 'l')
+	else if (fmt[i] == 'l')
 	{
 		ts->l = 1;
 		i++;
 	}
-	else if (fmt[i] == 'h' && fmt[i + 1] && fmt[i + 1] != 'h')
+	else if (fmt[i] == 'h')
 	{
 		ts->h = 1;
 		i++;
@@ -2189,16 +2268,19 @@ int		parse_format(va_list ap, char *fmt)
 	int i, j, k;
 	//char c, 
 	char *s;
-	char *out;
+	//char *out;
 	t_spec *ts;
+	//char *tmp;
 
 	i = 0;
 	j = 0;
 	int fl = 0;
 	k = 0;
+	s = NULL;
 	//d = va_arg(ap, int);
+	//s = ft_strnew(1);
 	ts = (t_spec *)malloc(sizeof(t_spec));
-	out = (char *)ft_memalloc(1);
+	//out = (char *)ft_memalloc(1);
 	while (fmt[i])
 	{
 		if (fmt[i] == '%' && fmt[i + 1])
@@ -2212,7 +2294,12 @@ int		parse_format(va_list ap, char *fmt)
 			if ((is_type(fmt[i])) || (!(is_type(fmt[i])) && 
 				(ts->nil || ts->min || ts->width || ts->prec)))
 			{
+				// tmp = s;
 				s = print_format(ap, ts, fmt[i]);
+				//if (tmp)
+				//s = ft_strdup("ss");
+					//ft_strdel(&tmp);
+				//system("leaks a.out");
 				if (!s)
 					s = ft_strdup("(null)");
 				while (s[k])
@@ -2232,12 +2319,14 @@ int		parse_format(va_list ap, char *fmt)
 					ft_putstr(s);
 				}
 				fl = 0;
+				ft_strdel(&s);
 			}
 			else
 			{
 				write(1, &fmt[i], 1);
 				j++;
 			}
+			//ft_strdel(&s);
 			//out = ft_strjoin(out, s);
 			//j = i + 1;
 			//print_struct(ts);
@@ -2258,6 +2347,8 @@ int		parse_format(va_list ap, char *fmt)
 		// }
 		i++;
 	}
+	ft_memdel((void**)&ts);
+	//ft_strdel(&out);
 	return (j);
 }
 
@@ -2265,10 +2356,8 @@ int		parse_format(va_list ap, char *fmt)
 int	ft_printf(char *fmt, ...)
 {
 	va_list ap;
-	char* res;
 	int n;
 
-	res = fmt;
 	va_start(ap, fmt);
 	n = parse_format(ap, fmt);
 	va_end(ap);
@@ -2277,10 +2366,82 @@ int	ft_printf(char *fmt, ...)
 
 // int main()
 // {
+// 	ft_printf("\n");
+// 	ft_printf("%%\n");
+// 	ft_printf("%d\n", 42);
+// 	ft_printf("%d%d\n", 42, 41);
+// 	ft_printf("%d%d%d\n", 42, 43, 44);
+// 	ft_printf("%ld\n", 2147483647);
+// 	ft_printf("%lld\n", 9223372036854775807);
+// 	ft_printf("%x\n", 505);
+// 	ft_printf("%X\n", 505);
+// 	ft_printf("%p\n", &ft_printf);
+// 	ft_printf("%20.15d\n", 54321);
+// 	ft_printf("%-10d\n", 3);
+// 	ft_printf("% d\n", 3);
+// 	ft_printf("%+d\n", 3);
+// 	ft_printf("%010d\n", 1);
+// 	ft_printf("%hhd\n", 0);
+// 	ft_printf("%jd\n", 9223372036854775807);
+// 	ft_printf("%zd\n", 4294967295);
+// 	ft_printf("%\n");
+// 	ft_printf("%U\n", 4294967295);
+// 	ft_printf("%u\n", 4294967295);
+// 	ft_printf("%o\n", 40);
+// 	ft_printf("%%#08x\n", 42);
+// 	ft_printf("%x\n", 1000);
+// 	ft_printf("%#X\n", 1000);
+// 	ft_printf("%s\n", NULL);
+// 	ft_printf("%S\n", L"ݗݜशব");
+// 	ft_printf("%s%s\n", "test", "test");
+// 	ft_printf("%s%s%s\n", "test", "test", "test");
+// 	ft_printf("%C\n", 15000);
+// 	printf("\n--------------------------\n");
+// 	printf("\n");
+// 	printf("%%\n");
+// 	printf("%d\n", 42);
+// 	printf("%d%d\n", 42, 41);
+// 	printf("%d%d%d\n", 42, 43, 44);
+// 	printf("%ld\n", 2147483647);
+// 	printf("%lld\n", 9223372036854775807);
+// 	printf("%x\n", 505);
+// 	printf("%X\n", 505);
+// 	printf("%p\n", &printf);
+// 	printf("%20.15d\n", 54321);
+// 	printf("%-10d\n", 3);
+// 	printf("% d\n", 3);
+// 	printf("%+d\n", 3);
+// 	printf("%010d\n", 1);
+// 	printf("%hhd\n", 0);
+// 	printf("%jd\n", 9223372036854775807);
+// 	printf("%zd\n", 4294967295);
+// 	printf("%\n");
+// 	printf("%U\n", 4294967295);
+// 	printf("%u\n", 4294967295);
+// 	printf("%o\n", 40);
+// 	printf("%%#08x\n", 42);
+// 	printf("%x\n", 1000);
+// 	printf("%#X\n", 1000);
+// 	printf("%s\n", NULL);
+// 	printf("%S\n", L"ݗݜशব");
+// 	printf("%s%s\n", "test", "test");
+// 	printf("%s%s%s\n", "test", "test", "test");
+// 	printf("%C\n", 15000);
+// return (0);
+// }
+
+// int main()
+// {
 // 	setlocale(LC_ALL, "en_US.UTF-8");
-// 	int strlen = 4;
-// 	int	x = L'ÁM-^L´';
-// 	int n = ft_printf("%C, %-13.8S", 0, L"米фып");
+// 	//int strlen = 4;
+// 	//int	x = L'ÁM-^L´';
+// 	int n = ft_printf("%zd", -2147483648);
+// 	//ft_printf("{%#.5x}", 1);
+// 	//ft_printf("{%+03d}", 123456);
+// 	//ft_printf("{%0.*d}", 5, 42);
+// 	//ft_printf("%S\n", L"ݗݜशব");
+// 	//ft_printf("%C, %15.5S", 0, L"米hып");
+// 	//ft_printf("%15.4S", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
 // 	//ft_printf("%C, %-20.9s", 0, "douche1docuhe2");
 // 	//ft_printf("%C, %-5.9S", 0, L"米фып");
 // 	//ft_printf("%-015.5S", L"Темкаитемкаитемкаитемка");
@@ -2367,7 +2528,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("%C, %-13.8S", 0, L"米фып");
+// 	n = printf("%zd", -2147483648);
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
