@@ -1302,11 +1302,128 @@ char	*handle_char_nominnil(t_spec *ts, char *s, char *fs, int f_len, int len)
 	return (fs);
 }
 
+int		char_nil_precwidth(t_spec *ts, char *s, char **fs, int f_len)
+{
+	int j;
+
+	j = 0;
+	if (s[0])
+	{
+		if (!s[1])
+			while (j < f_len - (int)ts->prec)
+				(*fs)[j++] = '0';
+		else
+			while (j < f_len - (int)ft_strlen(s))
+				(*fs)[j++] = '0';
+	}
+	return (j);
+}
+
+char	*char_nil_noprec(char *s, char *fs, int f_len, int len)
+{
+	int j;
+	int j1;
+
+	j = 0;
+	j1 = 0;
+	while (j < f_len - (int)len)
+		fs[j++] = '0';
+	if (s[0])
+		while (j < f_len && j1 < (int)ft_strlen(s))
+			fs[j++] = s[j1++];
+	else
+	{
+		fs[j++] = '^';
+		fs[j] = '@';
+	}
+	return (fs);
+}
+
+
+char	*handle_char_nil(t_spec *ts, char *s, char *fs, int f_len, int len)
+{
+	int j;
+	int j1;
+
+	j = 0;
+	j1 = 0;
+	if (ts->prec)
+	{
+		if (ts->width)
+			j = char_nil_precwidth(ts, s, &fs, f_len);
+		if (s[0])
+			while (j < f_len && j1 < (int)ft_strlen(s))
+				fs[j++] = s[j1++];
+		else
+		{
+			if (f_len != (int)ts->prec)
+				while (j < f_len)
+					fs[j++] = '0';
+			fs[j++] = '^';
+			fs[j] = '@';
+		}
+	}
+	else
+		fs = char_nil_noprec(s, fs, f_len, len);
+	return (fs);
+}
+
+char	*char_min_prec(t_spec *ts, char *s, char *fs, int f_len, int j)
+{
+	int j1;
+
+	j1 = 0;
+	if (s[0])
+	{
+		j1 = 0;
+		if (!s[1])
+			while (j < (int)ts->prec && j1 < (int)ft_strlen(s))
+				fs[j++] = s[j1++];
+		else
+			while (j < f_len && j1 < (int)ft_strlen(s))
+				fs[j++] = s[j1++];
+		while (j < f_len)
+			fs[j++] = ' ';
+	}
+	else
+	{
+		if (f_len != (int)ts->prec)
+			while (j < f_len)
+				fs[j++] = ' ';
+		fs[j++] = '^';
+		fs[j] = '@';
+	}
+	return (fs);
+}
+
+char	*handle_char_min(t_spec *ts, char *s, char *fs, int f_len)
+{
+	int j;
+	int j1;
+
+	j = 0;
+	j1 = 0;
+	if (ts->prec)
+		fs = char_min_prec(ts, s, fs, f_len, j);
+	else
+	{
+		if (s[0])
+			while (j < f_len && j1 < (int)ft_strlen(s))
+				fs[j++] = s[j1++];
+		else
+		{
+			fs[j++] = '^';
+			fs[j++] = '@';
+		}
+		while (j < f_len)
+			fs[j++] = ' ';
+	}
+	return (fs);
+}
+
 char	*print_char(t_spec *ts, char *s)
 {
 	int len;
-	int j;
-	int j1;
 	int f_len;
 	char *fs;
 
@@ -1318,130 +1435,9 @@ char	*print_char(t_spec *ts, char *s)
 	if (ts->min == 0 && ts->nil == 0)
 		fs = handle_char_nominnil(ts, s, fs, f_len, len);
 	else if (ts->min == 0 && ts->nil == 1)
-	{
-		j = 0;
-		if (ts->prec != 0)
-		{
-			if (ts->width != 0)
-			{
-				if (s[0])
-				{
-					if (!s[1])
-						while (j < f_len - (int)ts->prec)
-						{
-							fs[j] = '0';
-							j++;
-						}
-					else
-						while (j < f_len - (int)ft_strlen(s))
-						{
-							fs[j] = '0';
-							j++;
-						}
-				}
-			}
-			j1 = 0;
-			if (s[0])
-				while (j < f_len && j1 < (int)ft_strlen(s))
-				{
-					fs[j] = s[j1];;
-					j++;
-					j1++;
-				}
-			else
-			{
-				if (f_len != (int)ts->prec)
-					while (j < f_len)
-					{
-						fs[j] = '0';
-						j++;
-					}
-				fs[j++] = '^';
-				fs[j] = '@';
-			}
-
-		}
-		else
-		{
-			while (j < f_len - (int)len)
-			{
-				fs[j] = '0';
-				j++;
-			}
-			j1 = 0;
-			if (s[0])
-				while (j < f_len && j1 < (int)ft_strlen(s))
-				{
-					fs[j] = s[j1];;
-					j++;
-					j1++;
-				}
-			else
-			{
-				fs[j++] = '^';
-				fs[j] = '@';
-			}
-		}
-	}
+		fs = handle_char_nil(ts, s, fs, f_len, len);
 	else if (ts->min == 1)
-	{
-		j = 0;
-		if (ts->prec != 0)
-		{
-			if (s[0])
-			{
-				j1 = 0;
-				if (!s[1])
-					while (j < (int)ts->prec && j1 < (int)ft_strlen(s))
-					{
-						fs[j] = s[j1];
-						j++;
-						j1++;
-					}
-				else
-					while (j < f_len && j1 < (int)ft_strlen(s))
-					{
-						fs[j] = s[j1];
-						j++;
-						j1++;
-					}
-				while (j < f_len)
-				{
-					fs[j] = ' ';
-					j++;
-				}
-			}
-			else
-			{
-				if (f_len != (int)ts->prec)
-					while (j < f_len)
-					{
-						fs[j] = ' ';
-						j++;
-					}
-				fs[j++] = '^';
-				fs[j] = '@';
-			}
-		}
-		else
-		{
-			j1 = 0;
-			if (s[0])
-				while (j < f_len && j1 < (int)ft_strlen(s))
-				{
-					fs[j] = s[j1];;
-					j++;
-					j1++;
-				}
-			else
-			{
-				fs[j++] = '^';
-				fs[j++] = '@';
-			}
-			while (j < f_len)
-				fs[j++] = ' ';
-		}
-	}
+		fs = handle_char_min(ts, s, fs, f_len);
 	return (fs);
 }
 
@@ -1466,12 +1462,6 @@ char 	*handle_digit(va_list ap, t_spec *ts, char c)
 		i = va_arg(ap, intmax_t);
 	else
 		i = va_arg(ap, int);
-	//printf("%jd\n", i);
-	//printf("%s", is);
-	//ft_putnbr(i);
-	// ft_putstr(is);
-	// write(1, "\n", 1);
-	//ft_strdel(&fs);
 	fs = handle_dig(ts, i);
 	return (fs);
 }
@@ -1482,177 +1472,208 @@ int		size_bin(int value)
 	int len;
 
 	vbin = ft_itoa_base(value, 2);
-	//ft_putstr(vbin);
-	//write(1, "\n", 1);
 	len = ft_strlen(vbin);
 	ft_strdel(&vbin);
 	return (len);
 }
 
-char	*print_unicode(int value, int *ia, int i)
+char	*print_uni_7(int value, int *ia, int i)
 {
-	//unsigned int mask0 = 0;
-	unsigned int mask1 = 49280;
-	unsigned int mask2 = 14712960;
-	unsigned int mask3 = 4034953344;
- 
-
- 	unsigned int v = value;
-	int size = size_bin(value);
-	//int res = 0;
-	//printf("size %d\n", size);
 	unsigned char octet;
 	char *res;
 
-if (size <= 7)
-	{
-		//write(1, "erg", 3);
-		octet = value;
-		res = (char *)ft_memalloc(2);
-		res[0] = octet;
-		ia[i]++;
-		res[1] = 0;
-		//write(1, &octet, 1);
-		return (res);
-	}
+	octet = value;
+	res = (char *)ft_strnew(5);
+	res[0] = octet;
+	ia[i]++;
+	return (res);
+}
+
+char	*print_uni_11(int value, int *ia, int i, t_uni *tu)
+{
+	unsigned int v;
+	unsigned char octet;
+	char *res;
+
+	v = value;
+	tu->o2 = (v << 26) >> 26;
+	tu->o1 = ((v >> 6) << 27) >> 27;
+	octet = (tu->mask1 >> 8) | tu->o1;
+	res = (char *)ft_strnew(5);
+	res[0] = octet;
+	ia[i]++;
+	octet = ((tu->mask1 << 24) >> 24) | tu->o2;
+	res[1] = octet;
+	ia[i]++;
+	return (res);
+}
+
+char	*print_uni_16(int value, int *ia, int i, t_uni *tu)
+{
+	unsigned int v;
+	unsigned char octet;
+	char *res;
+
+	v = value;
+	tu->o3 = (v << 26) >> 26;
+	tu->o2 = ((v >> 6) << 26) >> 26;
+	tu->o1 = ((v >> 12) << 28) >> 28;
+	octet = (tu->mask2 >> 16) | tu->o1;
+	res = (char *)ft_strnew(5);
+	res[0] = octet;
+	ia[i]++;
+	octet = ((tu->mask2 << 16) >> 24) | tu->o2;
+	res[1] = octet;
+	ia[i]++;
+	octet = ((tu->mask2 << 24) >> 24) | tu->o3;
+	res[2] = octet;
+	ia[i]++;
+	return (res);
+}
+
+char	*print_uni_21(int value, int *ia, int i, t_uni *tu)
+{
+	unsigned int v;
+	unsigned char octet;
+	char *res;
+
+	v = value;
+	tu->o4 = (v << 26) >> 26;
+	tu->o3 = ((v >> 6) << 26) >> 26;
+	tu->o2 = ((v >> 12) << 26) >> 26;
+	tu->o1 = ((v >> 18) << 29) >> 29;
+	octet = (tu->mask3 >> 24) | tu->o1;
+	res = (char *)ft_strnew(10);
+	res[0] = octet;
+	ia[i]++;
+	octet = ((tu->mask3 << 8) >> 24) | tu->o2;
+	res[1] = octet;
+	ia[i]++;
+	octet = ((tu->mask3 << 16) >> 24) | tu->o3;
+	res[2] = octet;
+	ia[i]++;
+	octet = ((tu->mask3 << 24) >> 24) | tu->o4;
+	res[3] = octet;
+	ia[i]++;
+	return (res);
+}
+
+t_uni	*init_uni(t_uni *tu)
+{
+	tu->mask1 = 0;
+	tu->mask2 = 0;
+	tu->mask3 = 0;
+	tu->o1 = 0;
+	tu->o2 = 0;
+	tu->o3 = 0;
+	tu->o4 = 0;
+	return (tu);
+}
+
+char	*print_unicode(int value, int *ia, int i)
+{
+	t_uni *tu;
+	int size;
+	char *res;
+
+	tu = (t_uni *)malloc(sizeof(t_uni));
+	tu = init_uni(tu);
+	tu->mask1 = 49280;
+	tu->mask2 = 14712960;
+	tu->mask3 = 4034953344;
+	size = size_bin(value);
+
+	if (size <= 7)
+		res = print_uni_7(value, ia, i);
 	else  if (size <= 11)
-	{
-		//write(1, "erg", 3);
-		unsigned char o2 = (v << 26) >> 26; // Восстановление первых 6 бит 110xxxxx 10(xxxxxx)
-		unsigned char o1 = ((v >> 6) << 27) >> 27; // Восстановление последних 5 бит 110(xxxxx) 10xxxxxx
-       
-		octet = (mask1 >> 8) | o1; // Применение первой битовой маски ко первому байту
-		res = (char *)ft_memalloc(3);
-		res[0] = octet;
-		ia[i]++;
-		//write(1, &octet, 1);
-		octet = ((mask1 << 24) >> 24) | o2; // Применение второй битовой маски ко второму байту
-		res[1] = octet;
-		ia[i]++;
-		res[2] = 0;
-		//write(1, &octet, 1);
-		return (res);
-		//write(1, "\n", 1);
-	}
+		res = print_uni_11(value, ia, i, tu);
 	else  if (size <= 16)
+		res = print_uni_16(value, ia, i, tu);
+	else
+		res = print_uni_21(value, ia, i, tu);
+	ft_memdel((void**)&tu);
+	return (res);
+}
+
+char	*handle_string_uni(va_list ap, t_spec *ts, int *ia, char *s)
+{
+	wchar_t *wa;
+	char *s1;
+	char *tmp;
+	int i;
+
+	wa = va_arg(ap, wchar_t *);
+	i = 0;
+	if (wa)
 	{
-		//write(1, "erg", 3);
-		unsigned char o3 = (v << 26) >> 26; // Восстановление первых 6 бит 1110xxxx 10xxxxxx 10(xxxxxx)
-		unsigned char o2 = ((v >> 6) << 26) >> 26; // Восстановление вторых 6 бит 1110xxxx 10(xxxxxx) 10xxxxxx
-		unsigned char o1 = ((v >> 12) << 28) >> 28; // Восстановление последних 4 бит 1110(xxxx) 10xxxxxx 10xxxxxx
-       
-		octet = (mask2 >> 16) | o1; // Применение первой битовой маски ко первому байту
-		res = (char *)ft_memalloc(4);
-		res[0] = octet;
-		ia[i]++;
-		//write(1, &octet, 1);
-		octet = ((mask2 << 16) >> 24) | o2; // Применение второй битовой маски ко второму байту
-		res[1] = octet;
-		ia[i]++;
-		//write(1, &octet, 1);
-		octet = ((mask2 << 24) >> 24) | o3; // Применение третьей битовой маски ко третьему байту
-		res[2] = octet;
-		ia[i]++;
-		res[3] = 0;
-		return (res);
-		//write(1, &octet, 1);
-		//write(1, "\n", 1);
+		while (wa[i])
+		{
+			tmp = s;
+			s1 = print_unicode(wa[i], ia, i);
+			s = ft_strjoin(s, s1);
+			ft_strdel(&s1);
+			ft_strdel(&tmp);
+			i++;
+		}
+		tmp = s;
+		s = handle_str(ts, s, 'S', ia);
+		ft_strdel(&tmp);
 	}
 	else
-	{
-		//write(1, "erg", 3);
-		unsigned char o4 = (v << 26) >> 26; // Восстановление первых 6 11110xxx 10xxxxxx 10xxxxxx 10(xxxxxx)
-		unsigned char o3 = ((v >> 6) << 26) >> 26; // Восстановление вторых 6 бит 11110xxx 10xxxxxx 10(xxxxxx) 10xxxxxx
-		unsigned char o2 = ((v >> 12) << 26) >> 26;  // Восстановление третьих 6 бит bits 11110xxx 10(xxxxxx) 10xxxxxx 10xxxxxx
-		unsigned char o1 = ((v >> 18) << 29) >> 29; // Восстановление последних 3 бита 11110(xxx) 10xxxxxx 10xxxxxx 10xxxxxx
-       
-		octet = (mask3 >> 24) | o1; // Применение бит первого байта на первый байт маски
-		res = (char *)ft_memalloc(5);
-		res[0] = octet;
-		ia[i]++;
-		//write(1, &octet, 1);
-		octet = ((mask3 << 8) >> 24) | o2; // Применение второй битовой маски ко второму байту
-		//write(1, &octet, 1);
-		res[1] = octet;
-		ia[i]++;
-		octet = ((mask3 << 16) >> 24) | o3; // Применение третьей битовой маски ко третьему байту
-		res[2] = octet;
-		ia[i]++;
-		//write(1, &octet, 1);
-		octet = ((mask3 << 24) >> 24) | o4; // Применение последней битовой маски ко последнему байту
-		//write(1, &octet, 1);
-		res[3] = octet;
-		ia[i]++;
-		res[4] = 0;
-		return (res);
-		//write(1, "\n", 1);
-	}
+		ft_strdel(&s);
+	return (s);
 }
 
 
 char 	*handle_string(va_list ap, t_spec *ts, char c)
 {
 	char *s;
-	wchar_t *wa;
 	int i;
 	int ia[100];
-	char *tmp;
-	char *s1;
 
 	i = 0;
 	while (i < 100)
 		ia[i++] = 0;
-	i = 0;
-	s = (char *)ft_memalloc(1);
+	s = (char *)ft_strnew(1);
 	if (c == 's' && !ts->l)
 	{
 		ft_strdel(&s);
 		s = va_arg(ap, char *);
 	}
 	if (c == 'S' || ts->l)
-	{
-		wa = va_arg(ap, wchar_t *);
-		if (wa)
-		{
-			while (wa[i])
-			{
-				tmp = s;
-				s1 = print_unicode(wa[i], ia, i);
-				s = ft_strjoin(s, s1);
-				ft_strdel(&s1);
-				ft_strdel(&tmp);
-				i++;
-			}
-			tmp = s;
-			s = handle_str(ts, s, 'S', ia);
-			ft_strdel(&tmp);
-		}
-		else
-			ft_strdel(&s);
-			//s = NULL;
-	}
-	//printf("%jd\n", i);
-	//printf("%s", is);
-	//ft_putnbr(i);
-	// ft_putstr(is);
-	// write(1, "\n", 1);
+		s = handle_string_uni(ap, ts, ia, s);
 	if (!s && !ts->nil && !ts->min)
 		return (s);
 	if (c == 's')
-	{
-		//tmp = s;
 		s = handle_str(ts, s, 's', ia);
-		//ft_strdel(&tmp);
-	}
-	//ft_strdel(&s);
-	//ft_memdel((void**)&wa);
 	return (s);
+}
+
+char	*handle_char_uni(va_list ap, t_spec *ts, char *fs, int *ia)
+{
+	int value;
+	char *tmp;
+	int i;
+
+	value = va_arg(ap, int);
+	i = 0;
+	tmp = fs;
+	fs = print_unicode(value, ia, i);
+	ft_strdel(&tmp);
+	if (!fs[0])
+	{
+		ft_strdel(&fs);
+		fs = ft_strdup("^@");
+	}
+	tmp = fs;
+	fs = print_char(ts, fs);
+	ft_strdel(&tmp);
+	return (fs);
 }
 
 char	*handle_char(va_list ap, t_spec *ts, char c)
 {
 	char *fs;
-	int value;
 	int ia[100];
 	int i;
 	char *tmp;
@@ -1660,37 +1681,16 @@ char	*handle_char(va_list ap, t_spec *ts, char c)
 	i = 0;
 	while (i < 100)
 		ia[i++] = 0;
-	value = 0;
 	fs = ft_strnew(1);
 	tmp = fs;
 	if (c == 'c' && !ts->l)
 	{
 		fs[0] = (char)va_arg(ap, int);
-		//ft_strdel(&tmp);
-		//tmp = fs;
 		fs = print_char(ts, fs);
 		ft_strdel(&tmp);
 	}
 	if (c == 'C' || ts->l)
-	{
-		value = va_arg(ap, int);
-		tmp = fs;
-		fs = print_unicode(value, ia, i);
-		ft_strdel(&tmp);
-		if (!fs[0])
-		{
-			ft_strdel(&fs);
-			fs = ft_strdup("^@");
-		}
-		tmp = fs;
-		fs = print_char(ts, fs);
-		ft_strdel(&tmp);
-	}
-	//printf("%jd\n", i);
-	//printf("%s", is);
-	//ft_putnbr(i);
-	// ft_putstr(fs);
-	// write(1, "\n", 1);
+		fs = handle_char_uni(ap, ts, fs, ia);
 	return (fs);
 }
 
@@ -1709,6 +1709,7 @@ char	*handle_percent(t_spec *ts)
 char	*ft_lower(char *fs)
 {
 	int j;
+
 	j = 0;
 	while(fs[j])
 		{
@@ -1718,17 +1719,10 @@ char	*ft_lower(char *fs)
 	return (fs);
 }
 
-char	*handle_unsigned(va_list ap, t_spec *ts, char c)
+char	*handle_unsigned1(va_list ap, t_spec *ts, char c, uintmax_t i)
 {
 	char *fs;
-	uintmax_t i;
-	int j;
-	fs = NULL;
 
-	j = 0;
-	i = 0;
-	if (c == 'U' || c == 'O')
-		ts->l = 1;
 	if (ts->l)
 		i = va_arg(ap, unsigned long);
 	else if (ts->ll)
@@ -1749,8 +1743,43 @@ char	*handle_unsigned(va_list ap, t_spec *ts, char c)
 		fs = print_unsigned(ts, i, 1);
 	else
 		fs = print_unsigned(ts, i, 2);
+	return (fs);
+}
+
+char	*handle_unsigned(va_list ap, t_spec *ts, char c)
+{
+	char *fs;
+	uintmax_t i;
+	fs = NULL;
+
+	i = 0;
+	if (c == 'U' || c == 'O')
+		ts->l = 1;
+	fs = handle_unsigned1(ap, ts, c, i);
 	if (c == 'x')
 		fs = ft_lower(fs);
+	return (fs);
+}
+
+char	*point_at_beg1(char *fs, int j, int fl)
+{
+	int i;
+
+	i = 0;
+	while (i < fl)
+	{
+		if (i == 0)
+			fs[i] = '0';
+		else if (i == 1)
+			fs[i] = 'x';
+		else if (i > 1 && j)
+			fs[i] = '0';
+		else if (i > 1)
+			fs[i] = ' ';
+		if (fs[i] == '0' && i != 0)
+			j--;
+		i++;	
+	}
 	return (fs);
 }
 
@@ -1764,33 +1793,32 @@ char	*point_at_beg(char *fs, t_spec *ts)
 	i = 0;
 	while (fs[i++] == '0')
 		j++;
-	i = 0;
-	//if ((int)ts->width == j)
-		//fl = ts->width;
 	fl = max(ts->prec, ts->width);
 	if (fl == (int)ts->prec)
 		fl += 2;
-	//if (fl == (int)ts->prec)
-		//fl += 2;
-	//ft_strdel(&fs);
 	fs = ft_strnew(fl);
-	// ft_putnbr(fl);
-	// write(1, "\n", 1);
-	while (i < fl)
-	{
-		if (i == 0)
-			fs[i] = '0';
-		else if (i == 1)
-			fs[i] = 'x';
-		else if (i > 1 && j)
-			fs[i] = '0';
-		else if (i > 1)
-			fs[i] = ' ';
-		if (fs[i] == '0' && i != 0)
-			j--;
-		i++;
-	}
+	fs = point_at_beg1(fs, j, fl);
 	return (fs);
+}
+
+int		cor_pointer1(int i, char **fs, t_spec *ts)
+{
+	int fl;
+
+	fl = 1;
+	if (i == (int)ft_strlen(*fs) - 1 && !((*fs)[i + 1]))
+		*fs = ft_strjoin(*fs, "x0");
+	else if (fs[0] == 0)
+		*fs = ft_strdup("0x");
+	else if (i == 0)
+		*fs = point_at_beg(*fs, ts);
+	else if ((*fs)[i + 1] && (*fs)[i + 2])
+	{
+		(*fs)[i + 1] = 'x';
+		(*fs)[i + 2] = '0';
+		fl = 0;
+	}
+	return (fl);
 }
 
 char	*cor_pointer(char *fs, t_spec *ts)
@@ -1802,32 +1830,10 @@ char	*cor_pointer(char *fs, t_spec *ts)
 	tmp = fs;
 	if (!ft_strchr(fs, 'x'))
 	{
-		while (fs[i])
-		{
-			if (fs[i] == '0')
-				break ;
+		while (fs[i] && fs[i] != '0')
 			i++;
-		}
-		if (i == (int)ft_strlen(fs) - 1 && !fs[i + 1])
-		{
-			fs = ft_strjoin(fs, "x0");
+		if (cor_pointer1(i, &fs, ts))
 			ft_strdel(&tmp);
-		}
-		else if (fs[0] == 0)
-		{
-			fs = ft_strdup("0x");
-			ft_strdel(&tmp);
-		}
-		else if (i == 0)
-		{
-			fs = point_at_beg(fs, ts);
-			ft_strdel(&tmp);
-		}
-		else if (fs[i + 1] && fs[i + 2])
-		{
-			fs[i + 1] = 'x';
-			fs[i + 2] = '0';
-		}
 	}
 	return (fs);
 }	
@@ -1836,15 +1842,12 @@ char	*handle_pointer(va_list ap, t_spec *ts)
 {
 	char *fs;
 	uintmax_t i;
-	//char *tmp;
 
 	i = va_arg(ap, uintmax_t);
 	ts->hash = 1;
 	fs = print_unsigned(ts, i, 2);
 	fs = ft_lower(fs);
-	//tmp = fs;
 	fs = cor_pointer(fs, ts);
-	//ft_strdel(&tmp);
 	return (fs);
 }
 
@@ -1939,13 +1942,11 @@ int		parse_pres(char *fmt, t_spec *ts)
 	return (i);
 }
 
-int		parse_spec(char *fmt, t_spec *ts, va_list ap)
+int		parse_flags(char *fmt, t_spec *ts)
 {
 	int i;
-	int tmp;
 
 	i = 0;
-	ts = init_struct(ts);
 	while (fmt[i] == '-' || fmt[i] == '+' || fmt[i] == ' ' || fmt[i] == '0' || fmt[i] == '#')
 	{
 		if (fmt[i] == '-')
@@ -1960,8 +1961,13 @@ int		parse_spec(char *fmt, t_spec *ts, va_list ap)
 			ts->hash = 1;
 		i++;
 	}
-	// write(1, &fmt[i], 1);
-	// write(1, "\n", 1);
+	return (i);
+}
+
+int		parse_width_bon(char *fmt, t_spec *ts, int i, va_list ap)
+{
+	int tmp;
+
 	if (fmt[i] == '*')
 	{
 		if ((tmp = va_arg(ap, int)) < 0)
@@ -1976,22 +1982,34 @@ int		parse_spec(char *fmt, t_spec *ts, va_list ap)
 	}
 	else
 		i += parse_width(&fmt[i], ts);
-	// write(1, &fmt[i], 1);
-	// write(1, "\n", 1);
+	return (i);
+}
+
+int		parse_width_bon1(char *fmt, t_spec *ts, int i, va_list ap)
+{
+	int tmp;
+
 	if (fmt[i] == '*')
+	{
+		if ((tmp = va_arg(ap, int)) < 0)
 		{
-			if ((tmp = va_arg(ap, int)) < 0)
-			{
-				ts->width = tmp * -1;
-				ts->min = 1;
-			}
-			else
-				ts->width = tmp;
-			ts->asterisk1 = 1;
-			i++;
+			ts->width = tmp * -1;
+			ts->min = 1;
 		}
+		else
+			ts->width = tmp;
+		ts->asterisk1 = 1;
+		i++;
+	}
 	else if (fmt[i] >= '0' && fmt[i] <= '9')
 		i += parse_width(&fmt[i], ts);
+	return (i);
+}
+
+int		parse_prec_bon(char *fmt, t_spec *ts, int i, va_list ap)
+{
+	int tmp;
+
 	if (fmt[i] == '.')
 	{
 		ts->dot = 1;
@@ -2010,24 +2028,38 @@ int		parse_spec(char *fmt, t_spec *ts, va_list ap)
 		else
 			i += parse_pres(&fmt[i], ts);
 	}
-	// write(1, &fmt[i], 1);
-	// write(1, "\n", 1);
-	if (fmt[i] == 'l' && fmt[i + 1] && fmt[i + 1] == 'l')
+	return (i);
+}
+
+int		parse_specif(char *fmt, t_spec *ts, int *i)
+{
+	int fl;
+
+	fl = 0;
+	if (fmt[*i] == 'l' && fmt[*i + 1] && fmt[*i + 1] == 'l')
 	{
 		ts->ll = 1;
-		i += 2;
+		*i += 2;
+		fl = 1;
 	}
-	else if (fmt[i] == 'h' && fmt[i + 1] && fmt[i + 1] == 'h')
+	else if (fmt[*i] == 'h' && fmt[*i + 1] && fmt[*i + 1] == 'h')
 	{
 		ts->hh = 1;
-		i += 2;
+		*i += 2;
+		fl = 1;
 	}
-	else if (fmt[i] == 'l')
+	else if (fmt[*i] == 'l')
 	{
 		ts->l = 1;
-		i++;
+		(*i)++;
+		fl = 1;
 	}
-	else if (fmt[i] == 'h')
+	return (fl);
+}
+
+int		parse_specif1(char *fmt, t_spec *ts, int i)
+{
+	if (fmt[i] == 'h')
 	{
 		ts->h = 1;
 		i++;
@@ -2042,8 +2074,20 @@ int		parse_spec(char *fmt, t_spec *ts, va_list ap)
 		ts->z = 1;
 		i++;
 	}
-	// write(1, &fmt[i], 1);
-	// write(1, "\n", 1);
+	return (i);
+}
+
+int		parse_spec(char *fmt, t_spec *ts, va_list ap)
+{
+	int i;
+
+	ts = init_struct(ts);
+	i = parse_flags(fmt, ts);
+	i = parse_width_bon(fmt, ts, i, ap);
+	i = parse_width_bon1(fmt, ts, i, ap);
+	i = parse_prec_bon(fmt, ts, i, ap);
+	if (!parse_specif(fmt, ts, &i))
+		i = parse_specif1(fmt, ts, i);
 	return (i);
 }
 
@@ -2081,93 +2125,78 @@ int	str_zero(char *fs)
 	return (i);
 }
 
+int		output_fstring1(char *s, int fl, int j)
+{
+	int k;
+
+	k = 0;
+	while (s[k])
+	{
+		if (s[k] == '^' && s[k + 1] && s[k + 1] == '@')
+		{
+			fl = 1;
+			j += str_zero(s);
+			break ;
+		}
+		k++;
+	}
+	if (!fl)
+	{
+		j += ft_strlen(s);
+		ft_putstr(s);
+	}
+	return (j);
+}
+
+int		output_fstring(va_list ap, char c, int j, t_spec *ts)
+{
+	char *s;
+	int fl;
+
+	fl = 0;
+	if ((is_type(c)) || (!(is_type(c)) && 
+		(ts->nil || ts->min || ts->width || ts->prec)))
+	{
+		s = print_format(ap, ts, c);
+		if (!s)
+			s = ft_strdup("(null)");
+		j = output_fstring1(s, fl, j);
+		fl = 0;
+		ft_strdel(&s);
+	}
+	else
+	{
+		write(1, &c, 1);
+		j++;
+	}
+	return (j);
+}
+
 int		parse_format(va_list ap, char *fmt)
 {
-	//int d, 
-	int i, j, k;
-	//char c, 
-	char *s;
-	//char *out;
+	int i;
+	int j;
 	t_spec *ts;
-	//char *tmp;
 
 	i = 0;
 	j = 0;
-	int fl = 0;
-	k = 0;
-	s = NULL;
-	//d = va_arg(ap, int);
-	//s = ft_strnew(1);
 	ts = (t_spec *)malloc(sizeof(t_spec));
-	//out = (char *)ft_memalloc(1);
 	while (fmt[i])
 	{
 		if (fmt[i] == '%' && fmt[i + 1])
 		{
-			//s = ft_strsub(fmt, j, i - j);
-			//out = ft_strjoin(out, s);
 			i++;
 			i += parse_spec(&fmt[i], ts, ap);
-			// write(1, &fmt[i], 1);
-			// write(1, "\n", 1);
-			if ((is_type(fmt[i])) || (!(is_type(fmt[i])) && 
-				(ts->nil || ts->min || ts->width || ts->prec)))
-			{
-				// tmp = s;
-				s = print_format(ap, ts, fmt[i]);
-				//if (tmp)
-				//s = ft_strdup("ss");
-					//ft_strdel(&tmp);
-				//system("leaks a.out");
-				if (!s)
-					s = ft_strdup("(null)");
-				while (s[k])
-				{
-					if (s[k] == '^' && s[k + 1] && s[k + 1] == '@')
-					{
-						fl = 1;
-						j += str_zero(s);
-						break ;
-					}
-					k++;
-				}
-				//if (fmt[i] != 'C' && fmt[i] != 'S')
-				if (!fl)
-				{
-					j += ft_strlen(s);
-					ft_putstr(s);
-				}
-				fl = 0;
-				ft_strdel(&s);
-			}
-			else
-			{
-				write(1, &fmt[i], 1);
-				j++;
-			}
-			//ft_strdel(&s);
-			//out = ft_strjoin(out, s);
-			//j = i + 1;
-			//print_struct(ts);
+			j = output_fstring(ap, fmt[i], j, ts);
 		}
 		else if (fmt[i] != '%')
 		{
 			write(1, &fmt[i], 1);
 			j++;
 		}
-		// else if (fmt[i] == '%' && fmt[i + 1] && fmt[i + 1] == '%')
-		// {
-		// 	s = ft_strsub(fmt, j, i - j);
-		// 	out = ft_strjoin(out, s);
-		// 	s = ft_strdup("%");
-		// 	out = ft_strjoin(out, s);
-		// 	i++;
-		// 	j = i + 1;
-		// }
 		i++;
 	}
 	ft_memdel((void**)&ts);
-	//ft_strdel(&out);
 	return (j);
 }
 
@@ -2254,7 +2283,8 @@ int	ft_printf(char *fmt, ...)
 // 	setlocale(LC_ALL, "en_US.UTF-8");
 // 	//int strlen = 4;
 // 	//int	x = L'ÁM-^L´';
-// 	int n = ft_printf("@moulitest: %.10d", -42); 
+// 	int n = ft_printf("%.p, %.0p", 0, 0);
+// 	//ft_printf("@moulitest: %.10d", -42); 
 // 	//ft_printf("{%05s}", "abc");
 // 	//ft_printf("%-5.2s is a string", "this");
 // 	//ft_printf("%zd", -9223372036854775808);
@@ -2350,7 +2380,7 @@ int	ft_printf(char *fmt, ...)
 // 	printf("\n\t%d\t\n", n);
 // 	//write(1, "\n", 1);
 // 	//printf("%-+8d", 1234);
-// 	n = printf("@moulitest: %.10d", -42); 
+// 	n = printf("%.p, %.0p", 0, 0);
 // 	//printf("DefPrintf: |%+011.8zd| %%!", (ssize_t)-567);
 // 	printf("\n\t%d\t\n", n);
 // 	printf("\n");
