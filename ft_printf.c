@@ -75,7 +75,7 @@ char	*min_handle(char *is)
 	return (res);
 }
 
-int		str_min_prec_uni(t_spec *ts, char **fs, char *is, int *ia)
+int		str_min_prec_uni(t_spec *ts, char **fs, char *is)
 {
 	int j1;
 	int n;
@@ -90,9 +90,9 @@ int		str_min_prec_uni(t_spec *ts, char **fs, char *is, int *ia)
 	j = 0;
 	while (j < (int)ts->prec)
 	{
-		if ((n_sum += ia[n]) > (int)ts->prec)
+		if ((n_sum += ts->ia[n]) > (int)ts->prec)
 			break ;
-		while (cnt < ia[n] && j1 < (int)ft_strlen(is))
+		while (cnt < ts->ia[n] && j1 < (int)ft_strlen(is))
 		{
 			*fs[j++] = is[j1++];
 			cnt++;
@@ -194,7 +194,7 @@ char		*str_prec_width(t_spec *ts, char *fs, char *is)
 	return (fs);
 }
 
-char	*str_prec_nowidth_uni(int *ia, t_spec *ts, char *fs, char *is)
+char	*str_prec_nowidth_uni(t_spec *ts, char *fs, char *is)
 {
 	int n;
 	int cnt;
@@ -209,9 +209,9 @@ char	*str_prec_nowidth_uni(int *ia, t_spec *ts, char *fs, char *is)
 	j1 = 0;
 	while (j < (int)ts->prec)
 	{
-		if ((n_sum += ia[n]) > (int)ts->prec)
+		if ((n_sum += ts->ia[n]) > (int)ts->prec)
 			break ;
-		while (cnt < ia[n])
+		while (cnt < ts->ia[n])
 		{
 			fs[j++] = is[j1++];
 			cnt++;
@@ -222,25 +222,25 @@ char	*str_prec_nowidth_uni(int *ia, t_spec *ts, char *fs, char *is)
 	return (fs);
 }
 
-int		uni_cycle(int *ia, t_spec *ts, int n_sum, int *fl)
+int		uni_cycle(t_spec *ts, int n_sum, int *fl)
 {
 	int n;
 
 	n = 0;
-	while (ia[n])
+	while (ts->ia[n])
 	{
-		n_sum += ia[n];
+		n_sum += ts->ia[n];
 		if (n_sum == (int)ts->prec)
 			*fl = 1;
 		else if (n_sum > (int)ts->prec)
 		{
-			if (ia[n - 1])
+			if (ts->ia[n - 1])
 			{
-				n_sum -= ia[n];
-				if (ia[n - 1] + n_sum <= (int)ts->prec)
-					n_sum = ia[n - 1];
+				n_sum -= ts->ia[n];
+				if (ts->ia[n - 1] + n_sum <= (int)ts->prec)
+					n_sum = ts->ia[n - 1];
 				else
-					n_sum = (int)ts->prec - ia[n - 1];
+					n_sum = (int)ts->prec - ts->ia[n - 1];
 			}
 			else
 				n_sum -= (int)ts->prec;
@@ -251,7 +251,7 @@ int		uni_cycle(int *ia, t_spec *ts, int n_sum, int *fl)
 	return (n_sum);
 }
 
-void		uni_cycle_def(int j, t_spec *ts, char **fs, char *is, int *ia)
+void		uni_cycle_def(int j, t_spec *ts, char **fs, char *is)
 {
 	int n;
 	int n_sum;
@@ -264,13 +264,13 @@ void		uni_cycle_def(int j, t_spec *ts, char **fs, char *is, int *ia)
 	cnt = 0;
 	while (j < ts->f_len && j1 < (int)ft_strlen(is))
 	{
-		if ((n_sum += ia[n]) > (int)ts->prec)
+		if ((n_sum += ts->ia[n]) > (int)ts->prec)
 		{
 			while (j < ts->f_len)
 				(*fs)[j++] = ' ';
 			break ;
 		}
-		while (cnt < ia[n])
+		while (cnt < ts->ia[n])
 		{
 			(*fs)[j++] = is[j1++];
 			cnt++;
@@ -290,7 +290,7 @@ int		flen_prec(char **fs, t_spec *ts, char c)
 	return (j);
 }
 
-char	*str_prec_width_uni(int *ia, t_spec *ts, char *fs, char *is, char c)
+char	*str_prec_width_uni(t_spec *ts, char *fs, char *is, char c)
 {
 	int fl;
 	int n;
@@ -302,10 +302,10 @@ char	*str_prec_width_uni(int *ia, t_spec *ts, char *fs, char *is, char c)
 	n_sum = 0;
 	j = 0;
 	j = flen_prec(&fs, ts, ' ');
-	n_sum = uni_cycle(ia, ts, n_sum, &fl);
+	n_sum = uni_cycle(ts, n_sum, &fl);
 	while (!fl && n++ < n_sum)
 		fs[j++] = c;
-	uni_cycle_def(j, ts, &fs, is, ia);
+	uni_cycle_def(j, ts, &fs, is);
 	return (fs);
 }
 
@@ -343,7 +343,7 @@ char	*str_noprec(t_spec *ts, char *fs, char *is)
 	return (fs);
 }
 
-char	*handle_str_min(t_spec *ts, char *fs, char *is, char c, int *ia)
+char	*handle_str_min(t_spec *ts, char *fs, char *is, char c)
 {
 	int j;
 
@@ -354,7 +354,7 @@ char	*handle_str_min(t_spec *ts, char *fs, char *is, char c, int *ia)
 		if (c == 's')
 			fs = str_min_prec(ts, fs, is, &j);
 		else if (c == 'S')
-			j = str_min_prec_uni(ts, &fs, is, ia);
+			j = str_min_prec_uni(ts, &fs, is);
 		while (j < ts->f_len && (int)ft_strlen(is) != 0)
 			fs[j++] = ' ';
 		fs = str_min_prec_end(ts, fs, &j);
@@ -364,7 +364,7 @@ char	*handle_str_min(t_spec *ts, char *fs, char *is, char c, int *ia)
 	return (fs);
 }
 
-char	*handle_str_nmn_prec(t_spec *ts, char *fs, char *is, char c, int *ia)
+char	*handle_str_nmn_prec(t_spec *ts, char *fs, char *is, char c)
 {
 	int j;
 
@@ -376,19 +376,19 @@ char	*handle_str_nmn_prec(t_spec *ts, char *fs, char *is, char c, int *ia)
 		if (c == 's')
 			fs = f_leniter(fs, is, &j, ts);
 		else if (c == 'S')
-			fs = str_prec_width_uni(ia, ts, fs, is, ' ');
+			fs = str_prec_width_uni(ts, fs, is, ' ');
 	}
 	else
 	{
 		if (c == 's')
 			fs = str_min_prec(ts, fs, is, &j);
 		else if (c == 'S')
-			fs = str_prec_nowidth_uni(ia, ts, fs, is);
+			fs = str_prec_nowidth_uni(ts, fs, is);
 	}
 	return (fs);
 }
 
-char	*handle_str_nomin_nil(t_spec *ts, char *fs, char *is, char c, int *ia)
+char	*handle_str_nomin_nil(t_spec *ts, char *fs, char *is, char c)
 {
 	ts->f_len = figure_flen(ts);
 	if ((int)ts->prec > (int)ft_strlen(is))
@@ -398,7 +398,7 @@ char	*handle_str_nomin_nil(t_spec *ts, char *fs, char *is, char c, int *ia)
 		if (!ts->prec)
 			fs = str_noprec(ts, fs, is);
 		else
-			fs = handle_str_nmn_prec(ts, fs, is, c, ia);
+			fs = handle_str_nmn_prec(ts, fs, is, c);
 	}
 	return (fs);
 }
@@ -444,7 +444,7 @@ char	*handle_str_nil_noprec(t_spec *ts, char *fs, char *is)
 	return (fs);
 }
 
-char	*handle_str_nil_smprec(t_spec *ts, char *fs, char *is, char c, int *ia)
+char	*handle_str_nil_smprec(t_spec *ts, char *fs, char *is, char c)
 {
 	int j;
 
@@ -455,19 +455,19 @@ char	*handle_str_nil_smprec(t_spec *ts, char *fs, char *is, char c, int *ia)
 		if (c == 's')
 			fs = f_leniter(fs, is, &j, ts);
 		else if (c == 'S')
-			fs = str_prec_width_uni(ia, ts, fs, is, '0');
+			fs = str_prec_width_uni(ts, fs, is, '0');
 	}
 	else
 	{
 		if (c == 's')
 			fs = preciter(fs, is, &j, ts);
 		else if (c == 'S')
-			fs = str_prec_nowidth_uni(ia, ts, fs, is);
+			fs = str_prec_nowidth_uni(ts, fs, is);
 	}
 	return (fs);
 }
 
-char	*handle_str_nil(t_spec *ts, char *fs, char *is, char c, int *ia)
+char	*handle_str_nil(t_spec *ts, char *fs, char *is, char c)
 {
 	ts->f_len = figure_flen(ts);
 	if ((int)ts->prec > (int)ft_strlen(is))
@@ -477,12 +477,12 @@ char	*handle_str_nil(t_spec *ts, char *fs, char *is, char c, int *ia)
 		if (!ts->prec)
 			fs = handle_str_nil_noprec(ts, fs, is);
 		else
-			fs = handle_str_nil_smprec(ts, fs, is, c, ia);
+			fs = handle_str_nil_smprec(ts, fs, is, c);
 	}
 	return (fs);
 }
 
-char	*handle_str(t_spec *ts, char *s, char c, int *ia)
+char	*handle_str(t_spec *ts, char *s, char c)
 {
 	char *fs;
 	char *is;
@@ -496,11 +496,11 @@ char	*handle_str(t_spec *ts, char *s, char c, int *ia)
 	ts->f_len = max(ft_strlen(is), ts->width);
 	fs = (char *)ft_strnew(2 * ts->f_len);
 	if (ts->min == 1)
-		fs = handle_str_min(ts, fs, is, c, ia);
+		fs = handle_str_min(ts, fs, is, c);
 	else if (ts->min == 0 && ts->nil == 0)
-		fs = handle_str_nomin_nil(ts, fs, is, c, ia);
+		fs = handle_str_nomin_nil(ts, fs, is, c);
 	else if (ts->min == 0 && ts->nil == 1)
-		fs = handle_str_nil(ts, fs, is, c, ia);
+		fs = handle_str_nil(ts, fs, is, c);
 	ft_strdel(&is);
 	return (fs);
 }
@@ -1001,19 +1001,19 @@ char	*handle_dig(t_spec *ts, intmax_t i)
 	return (fs);
 }
 
-char	*handle_uns_dot(t_spec *ts, int fl, char *fs)
+char	*handle_uns_dot(t_spec *ts, char *fs)
 {
 	int j;
 
 	j = 0;
-	if ((!ts->width && !ts->hash) || (!ts->width && ts->hash && fl != 1))
+	if ((!ts->width && !ts->hash) || (!ts->width && ts->hash && ts->fl != 1))
 	{
 		fs[0] = 0;
 		return (fs);
 	}
 	else
 	{
-		if (ts->hash && fl == 1)
+		if (ts->hash && ts->fl == 1)
 			fs[j++] = '0';
 		while (j < ts->f_len)
 			fs[j++] = ' ';
@@ -1021,57 +1021,57 @@ char	*handle_uns_dot(t_spec *ts, int fl, char *fs)
 	return (fs);
 }
 
-char	*handle_uns_allnil(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*handle_uns_allnil(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
 	int j;
 	int j1;
 
 	j1 = 0;
 	j = 0;
-	if (ts->hash == 1 && fl == 2 && i != 0)
+	if (ts->hash == 1 && ts->fl == 2 && i != 0)
 	{
 		fs[j++] = '0';
 		fs[j++] = 'X';
-		il += 2;
+		ts->il += 2;
 	}
-	else if (ts->hash == 1 && fl == 1 && i != 0)
+	else if (ts->hash == 1 && ts->fl == 1 && i != 0)
 	{
 		fs[j++] = '0';
-		il++;
+		ts->il++;
 	}
-	while (j < il && j1 < (int)ft_strlen(is))
+	while (j < ts->il && j1 < (int)ft_strlen(is))
 		fs[j++] = is[j1++];
 	return (fs);
 }
 
-char	*uns_nil_smprec(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*uns_nil_smprec(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
 	int j;
 	int j1;
 
 	j1 = 0;
 	j = 0;
-	if (ts->hash == 1 && fl == 2 && i != 0)
+	if (ts->hash == 1 && ts->fl == 2 && i != 0)
 	{
 		fs[j++] = '0';
 		fs[j++] = 'X';
-		if ((int)ts->width < il)
+		if ((int)ts->width < ts->il)
 			ts->f_len += 2;
 	}
-	else if (ts->hash == 1 && fl == 1 && i != 0)
+	else if (ts->hash == 1 && ts->fl == 1 && i != 0)
 	{
 		fs[j++] = '0';
-		if ((int)ts->width < il)
+		if ((int)ts->width < ts->il)
 			ts->f_len++;
 	}
-	while (j < ts->f_len - il)
+	while (j < ts->f_len - ts->il)
 		fs[j++] = '0';
 	while (j < ts->f_len && j1 < (int)ft_strlen(is))
 		fs[j++] = is[j1++];
 	return (fs);
 }
 
-char	*uns_nil_prec(t_spec *ts, char *fs, char *is, int il)
+char	*uns_nil_prec(t_spec *ts, char *fs, char *is)
 {
 	int j;
 	int j1;
@@ -1080,55 +1080,55 @@ char	*uns_nil_prec(t_spec *ts, char *fs, char *is, int il)
 	j = 0;
 	while (j < ts->f_len - (int)ts->prec)
 		fs[j++] = ' ';
-	while (j < ts->f_len - il)
+	while (j < ts->f_len - ts->il)
 		fs[j++] = '0';
 	while (j < ts->f_len && j1 < (int)ft_strlen(is))
 		fs[j++] = is[j1++];
 	return (fs);
 }
 
-char	*handle_uns_nil(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*handle_uns_nil(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
-	if ((int)ts->prec <= il)
-		fs = uns_nil_smprec(ts, fl, fs, is, i, il);
+	if ((int)ts->prec <= ts->il)
+		fs = uns_nil_smprec(ts, fs, is, i);
 	else
-		fs = uns_nil_prec(ts, fs, is, il);
+		fs = uns_nil_prec(ts, fs, is);
 	return (fs);
 }
 
-char	*uns_min_smprec(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*uns_min_smprec(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
 	int j;
 	int j1;
 
 	j1 = 0;
 	j = 0;
-	if (ts->hash == 1 && fl == 2 && i != 0)
+	if (ts->hash == 1 && ts->fl == 2 && i != 0)
 	{
 		fs[j++] = '0';
 		fs[j++] = 'X';
-		il += 2;
+		ts->il += 2;
 	}
-	else if (ts->hash == 1 && fl == 1 && i != 0)
+	else if (ts->hash == 1 && ts->fl == 1 && i != 0)
 	{
 		fs[j++] = '0';
-		il++;
+		ts->il++;
 	}
-	while (j < il && j1 < (int)ft_strlen(is))
+	while (j < ts->il && j1 < (int)ft_strlen(is))
 		fs[j++] = is[j1++];
 	while (j < ts->f_len)
 		fs[j++] = ' ';
 	return (fs);
 }
 
-char	*uns_min_prec(t_spec *ts, char *fs, char *is, int il)
+char	*uns_min_prec(t_spec *ts, char *fs, char *is)
 {
 	int j;
 	int j1;
 
 	j1 = 0;
 	j = 0;
-	while (j < (int)(ts->prec - il))
+	while (j < (int)(ts->prec - ts->il))
 		fs[j++] = '0';
 	while (j < (int)ts->prec && j1 < (int)ft_strlen(is))
 		fs[j++] = is[j1++];
@@ -1137,41 +1137,41 @@ char	*uns_min_prec(t_spec *ts, char *fs, char *is, int il)
 	return (fs);
 }
 
-char	*handle_uns_min(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*handle_uns_min(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
-	if ((int)ts->prec <= il)
-		fs = uns_min_smprec(ts, fl, fs, is, i, il);
+	if ((int)ts->prec <= ts->il)
+		fs = uns_min_smprec(ts, fs, is, i);
 	else
-		fs = uns_min_prec(ts, fs, is, il);
+		fs = uns_min_prec(ts, fs, is);
 	return (fs);
 }
 
-char	*uns_nominnil_smprec(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*uns_nominnil_smprec(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
 	int j;
 	int j1;
 
 	j1 = 0;
 	j = 0;
-	if (ts->hash == 1 && fl == 2)
-			il += 2;
-	else if (ts->hash == 1 && fl == 1)
-		il++;
-	while (j < ts->f_len - il)
+	if (ts->hash == 1 && ts->fl == 2)
+			ts->il += 2;
+	else if (ts->hash == 1 && ts->fl == 1)
+		ts->il++;
+	while (j < ts->f_len - ts->il)
 		fs[j++] = ' ';
-	if (ts->hash == 1 && fl == 2 && i != 0)
+	if (ts->hash == 1 && ts->fl == 2 && i != 0)
 	{
 		fs[j++] = '0';
 		fs[j++] = 'X';
 	}
-	else if (ts->hash == 1 && fl == 1 && i != 0)
+	else if (ts->hash == 1 && ts->fl == 1 && i != 0)
 		fs[j++] = '0';
 	while (j < ts->f_len && j1 < (int)ft_strlen(is))
 		fs[j++] = is[j1++];
 	return (fs);
 }
 
-char	*uns_nominnil_prec(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*uns_nominnil_prec(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
 	int j;
 	int j1;
@@ -1180,42 +1180,42 @@ char	*uns_nominnil_prec(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int
 	j = 0;
 	while (j < (int)(ts->f_len - ts->prec))
 		fs[j++] = ' ';
-	if (ts->hash == 1 && fl == 2 && i != 0)
+	if (ts->hash == 1 && ts->fl == 2 && i != 0)
 	{
 		fs[j++] = '0';
 		fs[j++] = 'X';
 		ts->f_len += 2;
 	}
-	else if (ts->hash == 1 && fl == 1 && i != 0)
+	else if (ts->hash == 1 && ts->fl == 1 && i != 0)
 		fs[j++] = '0';
-	while (j < ts->f_len - il)
+	while (j < ts->f_len - ts->il)
 		fs[j++] = '0';
 	while (j < ts->f_len && j1 < (int)ft_strlen(is))
 		fs[j++] = is[j1++];
 	return (fs);
 }
 
-char	*handle_uns_nominnil(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*handle_uns_nominnil(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
-	if ((int)ts->prec <= il)
-		fs = uns_nominnil_smprec(ts, fl, fs, is, i, il);
+	if ((int)ts->prec <= ts->il)
+		fs = uns_nominnil_smprec(ts, fs, is, i);
 	else
-		fs = uns_nominnil_prec(ts, fl, fs, is, i, il);
+		fs = uns_nominnil_prec(ts, fs, is, i);
 	return (fs);
 }
 
-char	*print_unsigned1(t_spec *ts, int fl, char *fs, char *is, uintmax_t i, int il)
+char	*print_unsigned1(t_spec *ts, char *fs, char *is, uintmax_t i)
 {
 	if (ts->dot == 1 && ts->prec == 0 && i == 0)
-		fs = handle_uns_dot(ts, fl, fs);
+		fs = handle_uns_dot(ts, fs);
 	else if (ts->min == 0 && ts->nil == 0 && ts->width == 0 && ts->prec == 0)
-		fs = handle_uns_allnil(ts, fl, fs, is, i, il);
+		fs = handle_uns_allnil(ts, fs, is, i);
 	else if (ts->nil == 1 && ts->min == 0)
-		fs = handle_uns_nil(ts, fl, fs, is, i, il);
+		fs = handle_uns_nil(ts, fs, is, i);
 	else if (ts->min == 1)
-		fs = handle_uns_min(ts, fl, fs, is, i, il);
+		fs = handle_uns_min(ts, fs, is, i);
 	else if (ts->min == 0 && ts->nil == 0)
-		fs = handle_uns_nominnil(ts, fl, fs, is, i, il);
+		fs = handle_uns_nominnil(ts, fs, is, i);
 	return (fs);
 }
 
@@ -1232,10 +1232,12 @@ char	*print_unsigned(t_spec *ts, uintmax_t i, int fl)
 	else
 		il = ft_strlen(is = ft_itoa_base_u(i, 16));
 	ts->f_len = max(max(il, ts->width), ts->prec);
+	ts->fl = fl;
+	ts->il = il;
 	if (!fl)
 		is = ft_itoa_base_u(i, 10);
 	fs = (char *)ft_strnew(2 * ts->f_len);
-	fs = print_unsigned1(ts, fl, fs, is, i, il);
+	fs = print_unsigned1(ts, fs, is, i);
 	ft_strdel(&is);
 		return (fs);
 }
@@ -1268,12 +1270,12 @@ char	*char_nominnil_prec(t_spec *ts, char *s, char *fs, int j)
 	return (fs);
 }
 
-char	*char_nominnil_noprec(char *s, char *fs, int j, int len, t_spec *ts)
+char	*char_nominnil_noprec(char *s, char *fs, int j, t_spec *ts)
 {
 	int j1;
 
 	j1 = 0;
-	while (j < ts->f_len - (int)len)
+	while (j < ts->f_len - ts->len)
 			fs[j++] = ' ';
 	if (s[0])
 		while (j < ts->f_len && j1 < (int)ft_strlen(s))
@@ -1286,7 +1288,7 @@ char	*char_nominnil_noprec(char *s, char *fs, int j, int len, t_spec *ts)
 	return (fs);
 }
 
-char	*handle_char_nominnil(t_spec *ts, char *s, char *fs, int len)
+char	*handle_char_nominnil(t_spec *ts, char *s, char *fs)
 {
 	int j;
 
@@ -1294,7 +1296,7 @@ char	*handle_char_nominnil(t_spec *ts, char *s, char *fs, int len)
 	if (ts->prec)
 		fs = char_nominnil_prec(ts, s, fs, j);
 	else
-		fs = char_nominnil_noprec(s, fs, j, len, ts);
+		fs = char_nominnil_noprec(s, fs, j, ts);
 	return (fs);
 }
 
@@ -1315,14 +1317,14 @@ int		char_nil_precwidth(t_spec *ts, char *s, char **fs)
 	return (j);
 }
 
-char	*char_nil_noprec(char *s, char *fs, int len, t_spec *ts)
+char	*char_nil_noprec(char *s, char *fs, t_spec *ts)
 {
 	int j;
 	int j1;
 
 	j = 0;
 	j1 = 0;
-	while (j < ts->f_len - (int)len)
+	while (j < ts->f_len - ts->len)
 		fs[j++] = '0';
 	if (s[0])
 		while (j < ts->f_len && j1 < (int)ft_strlen(s))
@@ -1336,7 +1338,7 @@ char	*char_nil_noprec(char *s, char *fs, int len, t_spec *ts)
 }
 
 
-char	*handle_char_nil(t_spec *ts, char *s, char *fs, int len)
+char	*handle_char_nil(t_spec *ts, char *s, char *fs)
 {
 	int j;
 	int j1;
@@ -1360,7 +1362,7 @@ char	*handle_char_nil(t_spec *ts, char *s, char *fs, int len)
 		}
 	}
 	else
-		fs = char_nil_noprec(s, fs, len, ts);
+		fs = char_nil_noprec(s, fs, ts);
 	return (fs);
 }
 
@@ -1427,11 +1429,12 @@ char	*print_char(t_spec *ts, char *s)
 	if (!s[0])
 		len = 1;
 	ts->f_len = max(len, ts->width);
+	ts->len = len;
 	fs = (char *)ft_strnew(2 * ts->f_len);
 	if (ts->min == 0 && ts->nil == 0)
-		fs = handle_char_nominnil(ts, s, fs, len);
+		fs = handle_char_nominnil(ts, s, fs);
 	else if (ts->min == 0 && ts->nil == 1)
-		fs = handle_char_nil(ts, s, fs, len);
+		fs = handle_char_nil(ts, s, fs);
 	else if (ts->min == 1)
 		fs = handle_char_min(ts, s, fs);
 	return (fs);
@@ -1473,7 +1476,7 @@ int		size_bin(int value)
 	return (len);
 }
 
-char	*print_uni_7(int value, int *ia, int i)
+char	*print_uni_7(int value, t_spec *ts, int i)
 {
 	unsigned char octet;
 	char *res;
@@ -1481,11 +1484,11 @@ char	*print_uni_7(int value, int *ia, int i)
 	octet = value;
 	res = (char *)ft_strnew(5);
 	res[0] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	return (res);
 }
 
-char	*print_uni_11(int value, int *ia, int i, t_uni *tu)
+char	*print_uni_11(int value, t_spec *ts, int i, t_uni *tu)
 {
 	unsigned int v;
 	unsigned char octet;
@@ -1497,14 +1500,14 @@ char	*print_uni_11(int value, int *ia, int i, t_uni *tu)
 	octet = (tu->mask1 >> 8) | tu->o1;
 	res = (char *)ft_strnew(5);
 	res[0] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	octet = ((tu->mask1 << 24) >> 24) | tu->o2;
 	res[1] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	return (res);
 }
 
-char	*print_uni_16(int value, int *ia, int i, t_uni *tu)
+char	*print_uni_16(int value, t_spec *ts, int i, t_uni *tu)
 {
 	unsigned int v;
 	unsigned char octet;
@@ -1517,17 +1520,17 @@ char	*print_uni_16(int value, int *ia, int i, t_uni *tu)
 	octet = (tu->mask2 >> 16) | tu->o1;
 	res = (char *)ft_strnew(5);
 	res[0] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	octet = ((tu->mask2 << 16) >> 24) | tu->o2;
 	res[1] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	octet = ((tu->mask2 << 24) >> 24) | tu->o3;
 	res[2] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	return (res);
 }
 
-char	*print_uni_21(int value, int *ia, int i, t_uni *tu)
+char	*print_uni_21(int value, t_spec *ts, int i, t_uni *tu)
 {
 	unsigned int v;
 	unsigned char octet;
@@ -1541,16 +1544,16 @@ char	*print_uni_21(int value, int *ia, int i, t_uni *tu)
 	octet = (tu->mask3 >> 24) | tu->o1;
 	res = (char *)ft_strnew(10);
 	res[0] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	octet = ((tu->mask3 << 8) >> 24) | tu->o2;
 	res[1] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	octet = ((tu->mask3 << 16) >> 24) | tu->o3;
 	res[2] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	octet = ((tu->mask3 << 24) >> 24) | tu->o4;
 	res[3] = octet;
-	ia[i]++;
+	ts->ia[i]++;
 	return (res);
 }
 
@@ -1566,7 +1569,7 @@ t_uni	*init_uni(t_uni *tu)
 	return (tu);
 }
 
-char	*print_unicode(int value, int *ia, int i)
+char	*print_unicode(int value, t_spec *ts, int i)
 {
 	t_uni *tu;
 	int size;
@@ -1580,18 +1583,18 @@ char	*print_unicode(int value, int *ia, int i)
 	size = size_bin(value);
 
 	if (size <= 7)
-		res = print_uni_7(value, ia, i);
+		res = print_uni_7(value, ts, i);
 	else  if (size <= 11)
-		res = print_uni_11(value, ia, i, tu);
+		res = print_uni_11(value, ts, i, tu);
 	else  if (size <= 16)
-		res = print_uni_16(value, ia, i, tu);
+		res = print_uni_16(value, ts, i, tu);
 	else
-		res = print_uni_21(value, ia, i, tu);
+		res = print_uni_21(value, ts, i, tu);
 	ft_memdel((void**)&tu);
 	return (res);
 }
 
-char	*handle_string_uni(va_list ap, t_spec *ts, int *ia, char *s)
+char	*handle_string_uni(va_list ap, t_spec *ts, char *s)
 {
 	wchar_t *wa;
 	char *s1;
@@ -1605,14 +1608,14 @@ char	*handle_string_uni(va_list ap, t_spec *ts, int *ia, char *s)
 		while (wa[i])
 		{
 			tmp = s;
-			s1 = print_unicode(wa[i], ia, i);
+			s1 = print_unicode(wa[i], ts, i);
 			s = ft_strjoin(s, s1);
 			ft_strdel(&s1);
 			ft_strdel(&tmp);
 			i++;
 		}
 		tmp = s;
-		s = handle_str(ts, s, 'S', ia);
+		s = handle_str(ts, s, 'S');
 		ft_strdel(&tmp);
 	}
 	else
@@ -1624,12 +1627,7 @@ char	*handle_string_uni(va_list ap, t_spec *ts, int *ia, char *s)
 char 	*handle_string(va_list ap, t_spec *ts, char c)
 {
 	char *s;
-	int i;
-	int ia[100];
 
-	i = 0;
-	while (i < 100)
-		ia[i++] = 0;
 	s = (char *)ft_strnew(1);
 	if (c == 's' && !ts->l)
 	{
@@ -1637,15 +1635,15 @@ char 	*handle_string(va_list ap, t_spec *ts, char c)
 		s = va_arg(ap, char *);
 	}
 	if (c == 'S' || ts->l)
-		s = handle_string_uni(ap, ts, ia, s);
+		s = handle_string_uni(ap, ts, s);
 	if (!s && !ts->nil && !ts->min)
 		return (s);
 	if (c == 's')
-		s = handle_str(ts, s, 's', ia);
+		s = handle_str(ts, s, 's');
 	return (s);
 }
 
-char	*handle_char_uni(va_list ap, t_spec *ts, char *fs, int *ia)
+char	*handle_char_uni(va_list ap, t_spec *ts, char *fs)
 {
 	int value;
 	char *tmp;
@@ -1654,7 +1652,7 @@ char	*handle_char_uni(va_list ap, t_spec *ts, char *fs, int *ia)
 	value = va_arg(ap, int);
 	i = 0;
 	tmp = fs;
-	fs = print_unicode(value, ia, i);
+	fs = print_unicode(value, ts, i);
 	ft_strdel(&tmp);
 	if (!fs[0])
 	{
@@ -1670,13 +1668,8 @@ char	*handle_char_uni(va_list ap, t_spec *ts, char *fs, int *ia)
 char	*handle_char(va_list ap, t_spec *ts, char c)
 {
 	char *fs;
-	int ia[100];
-	int i;
 	char *tmp;
 
-	i = 0;
-	while (i < 100)
-		ia[i++] = 0;
 	fs = ft_strnew(1);
 	tmp = fs;
 	if (c == 'c' && !ts->l)
@@ -1686,7 +1679,7 @@ char	*handle_char(va_list ap, t_spec *ts, char c)
 		ft_strdel(&tmp);
 	}
 	if (c == 'C' || ts->l)
-		fs = handle_char_uni(ap, ts, fs, ia);
+		fs = handle_char_uni(ap, ts, fs);
 	return (fs);
 }
 
@@ -1875,7 +1868,7 @@ char	*print_format(va_list ap, t_spec *ts, char c)
 	return (res);
 }
 
-t_spec 	*init_struct(t_spec *ts)
+void 	init_struct(t_spec *ts)
 {
 	int i;
 
@@ -1901,7 +1894,7 @@ t_spec 	*init_struct(t_spec *ts)
 	ts->il = 0;
 	while (i < 100)
 		ts->ia[i++] = 0;
-	return (ts);
+	ts->len = 0;
 }
 
 int		parse_width(char *fmt, t_spec *ts)
@@ -2085,7 +2078,7 @@ int		parse_spec(char *fmt, t_spec *ts, va_list ap)
 {
 	int i;
 
-	ts = init_struct(ts);
+	init_struct(ts);
 	i = parse_flags(fmt, ts);
 	i = parse_width_bon(fmt, ts, i, ap);
 	i = parse_width_bon1(fmt, ts, i, ap);
