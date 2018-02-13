@@ -83,7 +83,30 @@ SRC = 	libft/ft_putchar.c \
 		libft/libft.h \
 		libft/ft_itoa_base_u.c \
 		libft/ft_nbrlen_u.c \
-		ft_printf.c
+		src/char_nil_sth.c \
+		src/dig_min.c \
+		src/dig_plus.c \
+		src/dig_plusnil.c \
+		src/dig_pluswidth.c \
+		src/file1.c \
+		src/handle_char.c \
+		src/handle_dig.c \
+		src/handle_dig1.c \
+		src/handle_pointer.c \
+		src/handle_string.c \
+		src/parse_flags.c \
+		src/parse_spec.c \
+		src/parse_specif.c \
+		src/print_char.c \
+		src/print_uni.c \
+		src/print_unsigned.c \
+		src/stfunc.c \
+		src/str_min.c \
+		src/str_nil.c \
+		src/str_nil_sth.c \
+		src/struni1.c \
+		src/uns_nil.c \
+		src/ft_printf.c
 
 
 OBJ = $(SRC:.c=.o)
@@ -98,8 +121,8 @@ $(NAME): $(OBJ)
 	gcc $(FLAGS) -c $< -o $@
 
 clean:
-	/bin/rm -f libft/*.o *.o
-	/bin/rm -f libft/*.gch *.gch
+	/bin/rm -f libft/*.o src/*.o
+	/bin/rm -f libft/*.gch src/*.gch
 
 fclean: clean
 	/bin/rm -f $(NAME)

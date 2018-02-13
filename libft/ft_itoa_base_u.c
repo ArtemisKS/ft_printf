@@ -33,7 +33,6 @@ char			*ft_itoa_base_u(uintmax_t value, int base)
 
 	tab = "0123456789ABCDEF";
 	size = stsize(value, base);
-	//ft_putnbr(size);
 	res = (char *)malloc(sizeof(char) * (size + 1));
 	res[size] = '\0';
 	while (--size > 0 && value >= (uintmax_t)base)
