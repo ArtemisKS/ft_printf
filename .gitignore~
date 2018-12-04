@@ -10,6 +10,7 @@
 # Main
 a.out
 misc
+*~
 
 # DS_Store
 .DS_Store
