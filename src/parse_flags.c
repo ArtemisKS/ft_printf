@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pf_parsing.c                                       :+:      :+:    :+:   */
+/*   parse_flags.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/05/06 06:02:43 by angavrel          #+#    #+#             */
-/*   Updated: 2018/12/04 12:56:02 by akupriia         ###   ########.fr       */
+/*   Created: 2018/12/04 13:51:53 by akupriia          #+#    #+#             */
+/*   Updated: 2018/12/04 13:52:11 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ static inline void	parse_flags(t_global *p)
 		else
 			p->f &= ~MIN_FL;
 		if (!(p->f & PREC_FL))
-			p->min_length = p->n;
+			p->len_min = p->n;
 		else
 		{
 			p->precision = (!(p->f & MIN_FL)) ? p->n : 0;
@@ -62,7 +62,7 @@ static inline void	parse_flags(t_global *p)
 ** contain the conversion result.
 **
 ** 2nd if : if there is a conv. specifier after the field width for a base it
-** will reset the min_length to 0 EXCEPT if it was a padding with 0s ...
+** will reset the len_min to 0 EXCEPT if it was a padding with 0s ...
 **
 ** 49 is ASCII for 1 and 57 for 9
 */
@@ -79,7 +79,7 @@ static inline void	parse_flags(t_global *p)
 ** of digits to appear for d, i, o, u, x, and X conversions, the number of
 ** digits to appear after the radix character for a, A, e, E, f, and F
 ** conversions, the maximum number of significant digits for g and G
-** conversions, or the maximum number of characters to be printed from a
+** conversions, or the maximum number of characters to be len_tobuf from a
 ** string for s and S conversions.
 */
 
@@ -98,7 +98,7 @@ static inline int	ft_max(int a, int b)
 static inline void	field_width_precision(t_global *p)
 {
 	if (48 < *p->format && *p->format < 58)
-		p->min_length = ft_max(ft_atoi_parse(&p->format), 1);
+		p->len_min = ft_max(ft_atoi_parse(&p->format), 1);
 	if (*p->format == '.')
 	{
 		++p->format;
@@ -151,8 +151,8 @@ static inline void	conversion_specifier(t_global *p)
 		pf_putnb(p);
 	else if (p->c == 'f' || p->c == 'F')
 		(p->f & PREC_FL && !p->precision) ? pf_putnb(p) : pf_putdouble(p, 10);
-	else if ((p->printed = ft_strchr_index("dDbBdDdDoOuUdDdDxX", p->c)) > -1)
-		pf_putnb_base(p->printed & ~1, p);
+	else if ((p->len_tobuf = ft_strchr_index("dDbBdDdDoOuUdDdDxX", p->c)) > -1)
+		pf_putnb_base(p->len_tobuf & ~1, p);
 	else if (p->c == 'c' || p->c == 'C')
 		pf_character(p, va_arg(p->ap, unsigned));
 	else if (p->c == 'S')
@@ -184,7 +184,7 @@ static inline void	conversion_specifier(t_global *p)
 void		parse_optionals(t_global *p)
 {
 	p->f = 0;
-	p->min_length = 0;
+	p->len_min = 0;
 	p->precision = 1;
 	parse_flags(p);
 	field_width_precision(p);

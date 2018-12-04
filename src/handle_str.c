@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pf_string.c                                        :+:      :+:    :+:   */
+/*   handle_str.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/05/06 06:02:49 by angavrel          #+#    #+#             */
-/*   Updated: 2018/12/04 12:56:02 by akupriia         ###   ########.fr       */
+/*   Created: 2018/12/04 13:51:49 by akupriia          #+#    #+#             */
+/*   Updated: 2018/12/04 13:51:50 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void		pf_puterror(char *s, t_global *p)
 		if (!(p->f & NIL_FL))
 			buffer(p, "(null)", 6);
 		else
-			while (p->min_length--)
+			while (p->len_min--)
 				buffer(p, "0", 1);
 	}
 	else
@@ -81,19 +81,19 @@ void		pf_putwstr(t_global *p)
 		pf_puterror(0, p);
 	else
 	{
-		p->printed = (int)(ft_wstrlen((unsigned *)s));
+		p->len_tobuf = (int)(ft_wstrlen((unsigned *)s));
 		if (p->f & PREC_FL)
-			p->printed = p->printed > p->precision ? p->precision : p->printed;
-		if ((p->padding = (p->min_length - p->printed)) < 0)
+			p->len_tobuf = p->len_tobuf > p->precision ? p->precision : p->len_tobuf;
+		if ((p->padding = (p->len_min - p->len_tobuf)) < 0)
 			p->padding = 0;
-		p->f = (p->min_length > p->precision) ?
+		p->f = (p->len_min > p->precision) ?
 			p->f & ~PREC_FL : p->f | PREC_FL;
 		padding(p, 0);
 		charlen = 0;
-		while ((p->c = *s++) && (p->printed -= charlen) > 0)
+		while ((p->c = *s++) && (p->len_tobuf -= charlen) > 0)
 		{
 			charlen = ft_wcharlen(p->c);
-			pf_putwchar(p, p->c, p->printed, charlen);
+			pf_putwchar(p, p->c, p->len_tobuf, charlen);
 		}
 		padding(p, 1);
 	}
@@ -111,10 +111,10 @@ void		pf_putstr(t_global *p)
 		pf_puterror(0, p);
 	else
 	{
-		p->printed = (int)(ft_strlen((char*)s));
+		p->len_tobuf = (int)(ft_strlen((char*)s));
 		if (p->f & PREC_FL)
-			p->printed = p->printed > p->precision ? p->precision : p->printed;
-		if ((p->padding = (p->min_length - p->printed)) > 0)
+			p->len_tobuf = p->len_tobuf > p->precision ? p->precision : p->len_tobuf;
+		if ((p->padding = (p->len_min - p->len_tobuf)) > 0)
 		{
 			p->c = 32 | (p->f & NIL_FL);
 			if (!(p->f & MIN_FL))
@@ -122,13 +122,13 @@ void		pf_putstr(t_global *p)
 					buffer(p, &p->c, 1);
 			else
 			{
-				buffer(p, s, p->printed);
+				buffer(p, s, p->len_tobuf);
 				while (p->padding--)
 					buffer(p, &p->c, 1);
 				return ;
 			}
 		}
-		buffer(p, s, p->printed);
+		buffer(p, s, p->len_tobuf);
 	}
 }
 
@@ -139,13 +139,13 @@ void		pf_putstr(t_global *p)
 
 void		pf_character(t_global *p, unsigned c)
 {
-	if ((p->f & L_FL || p->f & L_FL2) && (!(p->printed = ft_wcharlen(c))))
+	if ((p->f & L_FL || p->f & L_FL2) && (!(p->len_tobuf = ft_wcharlen(c))))
 		p->len = -1;
 	else
-		p->printed = 1;
-	if ((p->padding = p->min_length - p->printed) < 0)
+		p->len_tobuf = 1;
+	if ((p->padding = p->len_min - p->len_tobuf) < 0)
 		p->padding = 0;
 	padding(p, 0);
-	pf_putwchar(p, c, p->printed, p->printed);
+	pf_putwchar(p, c, p->len_tobuf, p->len_tobuf);
 	padding(p, 1);
 }

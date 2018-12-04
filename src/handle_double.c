@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pf_bonus.c                                         :+:      :+:    :+:   */
+/*   handle_double.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/05/06 06:02:21 by angavrel          #+#    #+#             */
-/*   Updated: 2018/12/04 13:27:13 by akupriia         ###   ########.fr       */
+/*   Created: 2018/12/04 13:51:39 by akupriia          #+#    #+#             */
+/*   Updated: 2018/12/04 13:51:40 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static void		ldtoa_fill(double n, t_global *p, long value, int b)
 	char	s[48];
 
 	p->c = 'a' - 10 - ((p->f & UPPERC_FL) >> 1);
-	len = p->printed - 1 - p->precision;
+	len = p->len_tobuf - 1 - p->precision;
 	while (p->precision--)
 	{
 		s[len + p->precision + 1] = value % b + ((value % b < 10) ? '0' : p->c);
@@ -59,7 +59,7 @@ static void		ldtoa_fill(double n, t_global *p, long value, int b)
 	(p->f & PL_FL && n >= 0) ? s[0] = '+' : 0;
 	if (b == 16 && (p->len += 2))
 		buffer(p, "0x", 2);
-	buffer(p, s, p->printed);
+	buffer(p, s, p->len_tobuf);
 }
 
 void			pf_putdouble(t_global *p, int base)
@@ -72,13 +72,13 @@ void			pf_putdouble(t_global *p, int base)
 
 	len = 1;
 	n = (double)va_arg(p->ap, double);
-	(p->f & NIL_FL) ? p->precision = p->min_length : 0;
+	(p->f & NIL_FL) ? p->precision = p->len_min : 0;
 	if (!(p->f & PREC_FL))
 		p->precision = 6 + base - 10;
 	tmp = (long)(n < 0 ? -n : n);
 	while (tmp && ++len)
 		tmp /= base;
-	p->printed = p->precision + len + ((n < 0) ? 1 : 0);
+	p->len_tobuf = p->precision + len + ((n < 0) ? 1 : 0);
 	decimal = ft_dabs(n);
 	decimal = (decimal - (long)(ft_dabs(n))) * ft_pow(base, p->precision + 1);
 	decimal = ((long)decimal % base > 4) ? decimal / base + 1 : decimal / base;
@@ -92,19 +92,19 @@ void			buffer(t_global *p, void *new, size_t size)
 	int			diff;
 
 	new_i = 0;
-	while (PF_BUF_SIZE - p->buffer_index < size)
+	while (PF_BUF_SIZE - p->buf_ind < size)
 	{
-		diff = PF_BUF_SIZE - p->buffer_index;
-		ft_memcpy(&(p->buff[p->buffer_index]), &(new[new_i]), diff);
+		diff = PF_BUF_SIZE - p->buf_ind;
+		ft_memcpy(&(p->buff[p->buf_ind]), &(new[new_i]), diff);
 		size -= diff;
 		new_i += diff;
-		p->buffer_index += diff;
+		p->buf_ind += diff;
 		p->len += diff;
-		write(p->fd, p->buff, p->buffer_index);
-		p->buffer_index = 0;
+		write(p->fd, p->buff, p->buf_ind);
+		p->buf_ind = 0;
 	}
-	ft_memcpy(&(p->buff[p->buffer_index]), &(new[new_i]), size);
-	p->buffer_index += size;
+	ft_memcpy(&(p->buff[p->buf_ind]), &(new[new_i]), size);
+	p->buf_ind += size;
 	p->len += size;
 }
 

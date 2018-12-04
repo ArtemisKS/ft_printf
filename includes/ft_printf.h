@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/01/28 18:37:46 by angavrel          #+#    #+#             */
-/*   Updated: 2018/12/04 13:03:37 by akupriia         ###   ########.fr       */
+/*   Created: 2018/12/04 13:52:07 by akupriia          #+#    #+#             */
+/*   Updated: 2018/12/04 13:52:09 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,29 +43,37 @@
 # define SIZET_FL		(1 << 12)
 # define PREC_FL		(1 << 14)
 # define POINT_FL		(1 << 15)
+# define RESET			"\033[0m"
+# define B_CYAN			"\033[1;36m"
+# define B_YELLOW		"\033[1;33m"
+# define BLUE			"\033[0;34m"
+# define YELLOW			"\033[0;33m"
+# define GREEN			"\033[0;32m"
+# define PURPLE			"\033[0;35m"
+# define RED			"\033[0;31m"
 
 /*
 ** --------------------------- ft_printf variables -----------------------------
 ** A) Printf writes the output and then returns the len (int)
 ** B) f stands for flag, defined above and extensively described in parsing.c
-** C) min_length (digit after %) and precision (. after %) ~ parsing.c
+** C) len_min (digit after %) and precision (. after %) ~ parsing.c
 ** D) padding is the resulting from C and the output length.
-** E) printed is the temporary len of chars to be send to the buffer
+** E) len_tobuf is the temporary len of chars to be send to the buffer
 ** F) fd is the file descriptor. 1 for ft_printf and can be any with ft_dprintf
-** G) buffer_index and buff are related to the buffer function ~ buffer.c
+** G) buf_ind and buff are related to the buffer function ~ buffer.c
 ** H) the variadic list (va_list ap) and the format are stored in the structure
 ** I) c is a temp char (as unsigned int) in order to have a single declaration
 */
 
 typedef struct	s_global
 {
-	size_t		buffer_index;
+	size_t		buf_ind;
 	unsigned	c;
 	int			len;
-	int			min_length;
+	int			len_min;
 	int			precision;
 	int			padding;
-	int			printed;
+	int			len_tobuf;
 	int			fd;
 	int			n;
 	int			i;
@@ -117,13 +125,5 @@ void			print_pointer_address(t_global *p);
 /*
 ** --------------------------- colors related defines --------------------------
 */
-
-# define PF_RED			"\033[31m"
-# define PF_GREEN		"\033[32m"
-# define PF_YELLOW		"\033[33m"
-# define PF_BLUE		"\033[34m"
-# define PF_PURPLE		"\033[35m"
-# define PF_CYAN		"\033[36m"
-# define PF_EOC			"\033[36m"
 
 #endif
