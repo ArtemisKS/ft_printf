@@ -1,18 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_bzero.c                                         :+:      :+:    :+:   */
+/*   ft_lstpush.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/11/06 17:57:04 by angavrel          #+#    #+#             */
-/*   Updated: 2017/05/05 20:42:18 by angavrel         ###   ########.fr       */
+/*   Created: 2018/12/04 12:11:15 by akupriia          #+#    #+#             */
+/*   Updated: 2018/12/04 12:14:48 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_bzero(void *s, size_t n)
+void	ft_lstpush(t_list **alst, t_list *new)
 {
-	ft_memset(s, 0, n);
+	t_list *tl;
+
+	tl = NULL;
+	if (alst && new)
+	{
+		if (*alst)
+			tl = *alst;
+		while ((*alst)->next)
+		{
+			*alst = (*alst)->next;
+		}
+		(*alst)->next = new;
+	}
+	*alst = tl;
 }

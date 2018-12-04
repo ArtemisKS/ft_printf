@@ -1,18 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_bzero.c                                         :+:      :+:    :+:   */
+/*   ft_strchr_index.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/11/06 17:57:04 by angavrel          #+#    #+#             */
-/*   Updated: 2017/05/05 20:42:18 by angavrel         ###   ########.fr       */
+/*   Created: 2017/05/05 20:13:57 by angavrel          #+#    #+#             */
+/*   Updated: 2017/05/05 23:52:28 by angavrel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-
-void	ft_bzero(void *s, size_t n)
+int		ft_strchr_index(char *s, int c)
 {
-	ft_memset(s, 0, n);
+	int		i;
+
+	i = 0;
+	while (s[i])
+	{
+		if (s[i] == c)
+			return (i);
+		++i;
+	}
+	return (-1);
 }

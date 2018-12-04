@@ -3,27 +3,52 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memset.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akupriia <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/10/24 12:58:12 by akupriia          #+#    #+#             */
-/*   Updated: 2017/10/24 12:58:14 by akupriia         ###   ########.fr       */
+/*   Created: 2016/11/06 18:25:41 by angavrel          #+#    #+#             */
+/*   Updated: 2017/05/05 20:42:48 by angavrel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	*ft_memset(void *memptr, int val, size_t num)
+static unsigned long long	init__(unsigned long long **magic, void *cp,
+									int c)
 {
-	size_t	i;
-	char	*tmp;
+	unsigned long long bmagic;
 
-	tmp = (char*)memptr;
-	i = 0;
-	while (i < num)
+	bmagic = 0xff & c;
+	bmagic = (bmagic << 8) | bmagic;
+	bmagic = (bmagic << 16) | bmagic;
+	bmagic = ((bmagic << 16) << 16) | bmagic;
+	*magic = (unsigned long long int *)cp;
+	return (bmagic);
+}
+
+void						*ft_memset(void *mem, int c, size_t mlen)
+{
+	unsigned long long	bmagic;
+	unsigned long long	*magic;
+	unsigned char		*cp;
+
+	magic = NULL;
+	cp = (unsigned char *)mem;
+	while (((unsigned long long)cp & (sizeof(bmagic) - 1)) && mlen)
 	{
-		tmp[i] = val;
-		i++;
+		*cp++ = c;
+		--mlen;
 	}
-	memptr = tmp;
-	return (memptr);
+	if (mlen >= 8)
+	{
+		bmagic = init__(&magic, (void *)cp, c);
+		while (mlen >= 8)
+		{
+			*magic++ = bmagic;
+			mlen -= 8;
+		}
+	}
+	cp = magic == NULL ? cp : (unsigned char *)magic;
+	while (mlen--)
+		*cp++ = c;
+	return (mem);
 }

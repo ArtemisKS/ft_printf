@@ -3,29 +3,49 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akupriia <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/10/24 14:26:17 by akupriia          #+#    #+#             */
-/*   Updated: 2017/10/24 14:26:23 by akupriia         ###   ########.fr       */
+/*   Created: 2016/11/06 18:02:16 by angavrel          #+#    #+#             */
+/*   Updated: 2017/05/05 20:42:01 by angavrel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include <string.h>
 
-void	*ft_memcpy(void *destptr, const void *srcptr, size_t num)
+static void	go_fast(unsigned char **cdst, unsigned char **csrc, size_t *n)
 {
-	size_t		i;
-	char		*tmp;
-	const char	*tmp1;
+	unsigned long	*ldst;
+	unsigned long	*lsrc;
+	size_t			a;
 
-	tmp = destptr;
-	tmp1 = srcptr;
-	i = 0;
-	while (i < num)
+	ldst = (unsigned long *)*cdst;
+	lsrc = (unsigned long *)*csrc;
+	a = *n;
+	while (a >= 8)
 	{
-		tmp[i] = tmp1[i];
-		i++;
+		*ldst++ = *lsrc++;
+		a -= 8;
 	}
-	destptr = tmp;
-	return (destptr);
+	*n = a;
+	*csrc = (unsigned char *)lsrc;
+	*cdst = (unsigned char *)ldst;
+}
+
+void		*ft_memcpy(void *dst, const void *src, size_t n)
+{
+	unsigned char	*cdst;
+	unsigned char	*csrc;
+
+	cdst = (unsigned char *)dst;
+	csrc = (unsigned char *)src;
+	while (((unsigned long)cdst & (sizeof(unsigned long) - 1)) && n)
+	{
+		*cdst++ = *csrc++;
+		--n;
+	}
+	if (n >= 8)
+		go_fast(&cdst, &csrc, &n);
+	while (n-- > 0)
+		*cdst++ = *csrc++;
+	return (dst);
 }

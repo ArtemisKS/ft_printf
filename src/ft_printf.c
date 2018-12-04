@@ -3,50 +3,141 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akupriia <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/12/26 20:51:06 by akupriia          #+#    #+#             */
-/*   Updated: 2017/12/26 20:51:07 by akupriia         ###   ########.fr       */
+/*   Created: 2017/01/28 19:18:44 by angavrel          #+#    #+#             */
+/*   Updated: 2017/05/30 21:19:19 by angavrel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include <ft_printf.h>
 
-int		parse_format(va_list ap, char *fmt)
+/*
+** main function : printf will return the total len of chars displayed by printf
+*/
+
+int		ft_printf(const char *format, ...)
 {
-	int		i;
-	int		j;
-	t_spec	*ts;
+	t_printf	p;
 
-	i = 0;
-	j = 0;
-	ts = (t_spec *)malloc(sizeof(t_spec));
-	while (fmt[i])
+	ft_bzero(&p, sizeof(p));
+	p.fd = 1;
+	p.format = (char *)format;
+	va_start(p.ap, format);
+	while (*p.format && p.len > -1)
 	{
-		if (fmt[i] == '%' && fmt[i + 1])
+		if (*p.format == '%')
 		{
-			i++;
-			i += parse_spec(&fmt[i], ts, ap);
-			j = output_fstring(ap, fmt[i], j, ts);
+			++p.format;
+			if (!*p.format || (*p.format == ' ' && (!p.format[1]
+			|| (!p.format[2] && p.format[1] == 'h'))))
+				break ;
+			else
+				parse_optionals(&p);
 		}
-		else if (fmt[i] != '%')
-		{
-			write(1, &fmt[i], 1);
-			j++;
-		}
-		i++;
+		else if (++p.i)
+			buffer(&p, &*p.format, 1);
+		++p.format;
 	}
-	ft_memdel((void**)&ts);
-	return (j);
+	(p.len < 0) ? write(p.fd, p.buff, p.buffer_index - p.i)
+		: write(p.fd, p.buff, p.buffer_index);
+	va_end(p.ap);
+	return (p.len);
 }
 
-int		ft_printf(char *fmt, ...)
-{
-	va_list	ap;
-	int		n;
+/*
+** bonus function to specify a specific fd, similar to libc dprintf
+*/
 
-	va_start(ap, fmt);
-	n = parse_format(ap, fmt);
-	va_end(ap);
-	return (n);
+int		ft_dprintf(int fd, const char *format, ...)
+{
+	t_printf	p;
+
+	ft_bzero(&p, sizeof(p));
+	p.fd = fd;
+	p.format = (char *)format;
+	va_start(p.ap, format);
+	while (*p.format && p.len > -1)
+	{
+		if (*p.format == '%')
+		{
+			++p.format;
+			if (!*p.format || (*p.format == ' ' && (!p.format[1]
+			|| (!p.format[2] && p.format[1] == 'h'))))
+				break ;
+			else
+				parse_optionals(&p);
+		}
+		else if (++p.i)
+			buffer(&p, &*p.format, 1);
+		++p.format;
+	}
+	(p.len < 0) ? write(p.fd, p.buff, p.buffer_index - p.i)
+		: write(p.fd, p.buff, p.buffer_index);
+	va_end(p.ap);
+	return (p.len);
+}
+
+/*
+** sprintf returns the string
+** Caution : intended for string < 64 (BUFF in define) characters.
+*/
+
+char	*ft_sprintf(const char *format, ...)
+{
+	t_printf	p;
+	char		*ret;
+
+	ft_bzero(&p, sizeof(p));
+	p.fd = 1;
+	p.format = (char *)format;
+	va_start(p.ap, format);
+	while (*p.format && p.len > -1)
+	{
+		if (*p.format == '%')
+			parse_optionals(&p);
+		else if (++p.i)
+			buffer(&p, &*p.format, 1);
+		++p.format;
+	}
+	p.buff[p.buffer_index + 1] = '\0';
+	if (!(ret = ft_strdup(p.buff)))
+		return (NULL);
+	va_end(p.ap);
+	return (ret);
+}
+
+/*
+** function that displays pointer address
+*/
+
+void	print_pointer_address(t_printf *p)
+{
+	void	*pointer;
+
+	pointer = va_arg(p->ap, void *);
+	p->f &= ~F_SHARP;
+	p->min_length -= (p->f & F_ZERO ? 2 : 0);
+	p->padding = (p->printed > p->min_length - 3) ? 0 :
+		p->min_length - 3 - p->printed;
+	p->f |= F_SHARP;
+	p->f |= F_POINTER;
+	p->printed = 0;
+	itoa_base_printf((uintmax_t)pointer, 16, p);
+}
+
+/*
+** function if no conversion specifier was found.
+*/
+
+void	cs_not_found(t_printf *p)
+{
+	if ((p->padding = p->min_length - 1) > 0)
+	{
+		padding(p, 0);
+		buffer(p, p->format, 1);
+		padding(p, 1);
+	}
+	else
+		buffer(p, p->format, 1);
 }

@@ -1,18 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_bzero.c                                         :+:      :+:    :+:   */
+/*   ft_atoi_parse.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/11/06 17:57:04 by angavrel          #+#    #+#             */
-/*   Updated: 2017/05/05 20:42:18 by angavrel         ###   ########.fr       */
+/*   Created: 2017/05/06 12:45:04 by angavrel          #+#    #+#             */
+/*   Updated: 2017/05/28 07:19:53 by angavrel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_bzero(void *s, size_t n)
+int		ft_atoi_parse(char **s)
 {
-	ft_memset(s, 0, n);
+	int		sign;
+	int		r;
+
+	r = 0;
+	sign = 1;
+	if (**s == '-' || **s == '+')
+		sign = 44 - *(*s)++;
+	while (**s >= '0' && **s <= '9')
+		r = r * 10 + *(*s)++ - '0';
+	return (sign * r);
 }

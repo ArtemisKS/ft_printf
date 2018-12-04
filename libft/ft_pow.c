@@ -1,18 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_bzero.c                                         :+:      :+:    :+:   */
+/*   ft_pow.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: angavrel <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/11/06 17:57:04 by angavrel          #+#    #+#             */
-/*   Updated: 2017/05/05 20:42:18 by angavrel         ###   ########.fr       */
+/*   Created: 2017/01/27 19:38:26 by angavrel          #+#    #+#             */
+/*   Updated: 2017/02/16 17:36:52 by angavrel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-
-void	ft_bzero(void *s, size_t n)
+double	ft_pow(double n, int pow)
 {
-	ft_memset(s, 0, n);
+	return (pow ? n * ft_pow(n, pow - 1) : 1);
 }
