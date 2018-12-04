@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pf_string.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/06 06:02:49 by angavrel          #+#    #+#             */
-/*   Updated: 2017/05/28 07:29:29 by angavrel         ###   ########.fr       */
+/*   Updated: 2018/12/04 12:56:02 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 ** nb_bytes <= MB_CUR_MAX define in stdlib.h
 */
 
-static void	pf_putwchar(t_printf *p, unsigned int wc, int wlen, int nb_bytes)
+static void	pf_putwchar(t_global *p, unsigned int wc, int wlen, int nb_bytes)
 {
 	char	tmp[4];
 
@@ -53,11 +53,11 @@ static void	pf_putwchar(t_printf *p, unsigned int wc, int wlen, int nb_bytes)
 ** prints string and returns its len, if no len will print (null) and return 6
 */
 
-void		pf_puterror(char *s, t_printf *p)
+void		pf_puterror(char *s, t_global *p)
 {
 	if (!s)
 	{
-		if (!(p->f & F_ZERO))
+		if (!(p->f & NIL_FL))
 			buffer(p, "(null)", 6);
 		else
 			while (p->min_length--)
@@ -72,7 +72,7 @@ void		pf_puterror(char *s, t_printf *p)
 ** please refer to libft for ft_wcharlen and ft_wstrlen
 */
 
-void		pf_putwstr(t_printf *p)
+void		pf_putwstr(t_global *p)
 {
 	wchar_t		*s;
 	int			charlen;
@@ -82,12 +82,12 @@ void		pf_putwstr(t_printf *p)
 	else
 	{
 		p->printed = (int)(ft_wstrlen((unsigned *)s));
-		if (p->f & F_APP_PRECI)
-			p->printed = p->printed > p->preci ? p->preci : p->printed;
+		if (p->f & PREC_FL)
+			p->printed = p->printed > p->precision ? p->precision : p->printed;
 		if ((p->padding = (p->min_length - p->printed)) < 0)
 			p->padding = 0;
-		p->f = (p->min_length > p->preci) ?
-			p->f & ~F_APP_PRECI : p->f | F_APP_PRECI;
+		p->f = (p->min_length > p->precision) ?
+			p->f & ~PREC_FL : p->f | PREC_FL;
 		padding(p, 0);
 		charlen = 0;
 		while ((p->c = *s++) && (p->printed -= charlen) > 0)
@@ -103,7 +103,7 @@ void		pf_putwstr(t_printf *p)
 ** print regular string and returns its len
 */
 
-void		pf_putstr(t_printf *p)
+void		pf_putstr(t_global *p)
 {
 	unsigned	*s;
 
@@ -112,12 +112,12 @@ void		pf_putstr(t_printf *p)
 	else
 	{
 		p->printed = (int)(ft_strlen((char*)s));
-		if (p->f & F_APP_PRECI)
-			p->printed = p->printed > p->preci ? p->preci : p->printed;
+		if (p->f & PREC_FL)
+			p->printed = p->printed > p->precision ? p->precision : p->printed;
 		if ((p->padding = (p->min_length - p->printed)) > 0)
 		{
-			p->c = 32 | (p->f & F_ZERO);
-			if (!(p->f & F_MINUS))
+			p->c = 32 | (p->f & NIL_FL);
+			if (!(p->f & MIN_FL))
 				while (p->padding--)
 					buffer(p, &p->c, 1);
 			else
@@ -137,9 +137,9 @@ void		pf_putstr(t_printf *p)
 ** refer to libft for putwchar amd wcharlen functions
 */
 
-void		pf_character(t_printf *p, unsigned c)
+void		pf_character(t_global *p, unsigned c)
 {
-	if ((p->f & F_LONG || p->f & F_LONG2) && (!(p->printed = ft_wcharlen(c))))
+	if ((p->f & L_FL || p->f & L_FL2) && (!(p->printed = ft_wcharlen(c))))
 		p->len = -1;
 	else
 		p->printed = 1;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pf_parsing.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/06 06:02:43 by angavrel          #+#    #+#             */
-/*   Updated: 2017/07/29 22:36:08 by angavrel         ###   ########.fr       */
+/*   Updated: 2018/12/04 12:56:02 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,28 +20,28 @@
 ** sharp is to add the prefix 0x for hexa for example
 */
 
-static inline void	parse_flags(t_printf *p)
+static inline void	parse_flags(t_global *p)
 {
 	while ((p->n = ft_strchr_index("# +-0*", *p->format)) > -1 && ++p->format)
 		p->f |= (1 << p->n);
-	((p->f & F_MINUS) && !(p->f & F_WILDCARD)) ? p->f &= ~F_ZERO : 0;
-	(p->f & F_PLUS) ? p->f &= ~F_SPACE : 0;
-	if (p->f & F_WILDCARD)
+	((p->f & MIN_FL) && !(p->f & WCARD_FL)) ? p->f &= ~NIL_FL : 0;
+	(p->f & PL_FL) ? p->f &= ~SP_FL : 0;
+	if (p->f & WCARD_FL)
 	{
-		p->f &= ~F_WILDCARD;
+		p->f &= ~WCARD_FL;
 		if ((p->n = (int)va_arg(p->ap, int)) < 0)
 		{
-			p->f |= F_MINUS;
+			p->f |= MIN_FL;
 			p->n = -p->n;
 		}
 		else
-			p->f &= ~F_MINUS;
-		if (!(p->f & F_APP_PRECI))
+			p->f &= ~MIN_FL;
+		if (!(p->f & PREC_FL))
 			p->min_length = p->n;
 		else
 		{
-			p->preci = (!(p->f & F_MINUS)) ? p->n : 0;
-			p->f = (!p->n) ? p->f | F_APP_PRECI : p->f & ~F_APP_PRECI;
+			p->precision = (!(p->f & MIN_FL)) ? p->n : 0;
+			p->f = (!p->n) ? p->f | PREC_FL : p->f & ~PREC_FL;
 		}
 	}
 }
@@ -95,28 +95,28 @@ static inline int	ft_max(int a, int b)
 	return (a > b ? a : b);
 }
 
-static inline void	field_width_precision(t_printf *p)
+static inline void	field_width_precision(t_global *p)
 {
 	if (48 < *p->format && *p->format < 58)
 		p->min_length = ft_max(ft_atoi_parse(&p->format), 1);
 	if (*p->format == '.')
 	{
 		++p->format;
-		p->preci = ft_max(ft_atoi_parse(&p->format), 0);
-		p->f |= F_APP_PRECI;
+		p->precision = ft_max(ft_atoi_parse(&p->format), 0);
+		p->f |= PREC_FL;
 	}
 	while (42)
 	{
 		if (*p->format == 'h')
-			p->f |= (p->format[1] == 'h' && ++p->format) ? F_SHORT2 : F_SHORT;
+			p->f |= (p->format[1] == 'h' && ++p->format) ? SH_FL2 : SH_FL;
 		else if (*p->format == 'l')
-			p->f |= (p->format[1] == 'l' && ++p->format) ? F_LONG2 : F_LONG;
+			p->f |= (p->format[1] == 'l' && ++p->format) ? L_FL2 : L_FL;
 		else if (*p->format == 'j')
-			p->f |= F_INTMAX;
+			p->f |= IMAX_FL;
 		else if (*p->format == 'z')
-			p->f |= F_SIZE_T;
+			p->f |= SIZET_FL;
 		else if (*p->format == 'L')
-			p->f |= F_LONG2;
+			p->f |= L_FL2;
 		else
 			break ;
 		++p->format;
@@ -141,16 +141,16 @@ static inline void	field_width_precision(t_printf *p)
 ** if the character is uppercase then p->cs.uppercase will be set to 1.
 */
 
-static inline void	conversion_specifier(t_printf *p)
+static inline void	conversion_specifier(t_global *p)
 {
 	if (ft_strchr_index("CDSUOBX", p->c) > -1)
-		p->f |= (p->c != 'X') ? F_LONG : F_UPCASE;
+		p->f |= (p->c != 'X') ? L_FL : UPPERC_FL;
 	if (p->c == 's')
-		(p->f & F_LONG || p->f & F_LONG2) ? pf_putwstr(p) : pf_putstr(p);
+		(p->f & L_FL || p->f & L_FL2) ? pf_putwstr(p) : pf_putstr(p);
 	else if (p->c == 'd' || p->c == 'i' || p->c == 'D')
 		pf_putnb(p);
 	else if (p->c == 'f' || p->c == 'F')
-		(p->f & F_APP_PRECI && !p->preci) ? pf_putnb(p) : pf_putdouble(p, 10);
+		(p->f & PREC_FL && !p->precision) ? pf_putnb(p) : pf_putdouble(p, 10);
 	else if ((p->printed = ft_strchr_index("dDbBdDdDoOuUdDdDxX", p->c)) > -1)
 		pf_putnb_base(p->printed & ~1, p);
 	else if (p->c == 'c' || p->c == 'C')
@@ -164,7 +164,7 @@ static inline void	conversion_specifier(t_printf *p)
 	else if (p->c == 'm')
 		pf_puterror(strerror(errno), p);
 	else if (p->c == 'a' || p->c == 'A')
-		(p->f & F_APP_PRECI && !p->preci) ? pf_putnb(p) : pf_putdouble(p, 16);
+		(p->f & PREC_FL && !p->precision) ? pf_putnb(p) : pf_putdouble(p, 16);
 	else
 		cs_not_found(p);
 	p->len > 0 ? p->i = 0 : 0;
@@ -181,15 +181,15 @@ static inline void	conversion_specifier(t_printf *p)
 ** 6) the second call to parse_flags is to handle undefined behaviors.
 */
 
-void		parse_optionals(t_printf *p)
+void		parse_optionals(t_global *p)
 {
 	p->f = 0;
 	p->min_length = 0;
-	p->preci = 1;
+	p->precision = 1;
 	parse_flags(p);
 	field_width_precision(p);
 	parse_flags(p);
-	(p->f & F_PLUS) ? p->f &= ~F_SPACE : 0;
+	(p->f & PL_FL) ? p->f &= ~SP_FL : 0;
 	p->c = *p->format;
 	conversion_specifier(p);
 }

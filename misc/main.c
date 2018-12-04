@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/28 19:18:38 by angavrel          #+#    #+#             */
-/*   Updated: 2017/06/08 22:00:24 by angavrel         ###   ########.fr       */
+/*   Updated: 2018/12/04 13:32:31 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,16 +142,21 @@ printf("\n--pointeur--\n");
 	printf("\n-- %%+n --\n");
 	i = ft_printf("%+10.0d\n", 0);
 	j = printf("%+10.0d\n", 0);
-	printf("Moi %d Le vrai : %d\n", i, j);
+	printf("Moi %d Le vrai : %d\n", i, j);/*/
 	printf("\n-- %%f --\n");
-	i = ft_printf("{%f}{%F}\n", 1.42, 1.42);
+	i = ft_printf("@{%f}{%F}\n", 1.42, 1.42);
 	j = printf("{%f}{%F}\n", 1.42, 1.42);
-	printf("Moi %d Le vrai : %d\n", i, j);
+	printf("My: %d; Original: %d\n", i, j);
 	printf("\n-- %%Lf --\n");
 	long double ld = 46.646;
-	i = ft_printf("{%f}\n{%F}\n", 1444565444646.6465424242242, 1444565444646.6465424242242);
-	j = printf("{%f}\n{%F}\n", 1444565444646.6465424242242, 1444565444646.6465424242242);
-	printf("Moi %d Le vrai : %d\n", i, j);
+	i = ft_printf("@{%f}{%F}\n", 1444565444646.6465424242242, 1444565444646.6465424242242);
+	j = printf("{%f}{%F}\n", 1444565444646.6465424242242, 1444565444646.6465424242242);
+	printf("My: %d; Original: %d\n", i, j);
+	printf("\n-- %%S --\n");
+	i = ft_printf("@\"%15.4S\"\n", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
+	j = printf("\"%15.4S\"\n", L"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-M-^B");
+	printf("My: %d; Original: %d\n", i, j);
+	/*printf("Moi %d Le vrai : %d\n", i, j);
 	printf("\nprintf(\"%%#08x\", 42)\n"); // a revoir
 	i = ft_printf("%#08x", 42);
 	printf(" -> %d for my PF\n", i);
@@ -636,14 +641,14 @@ printf("\nprintf(\"{%%030S}\", L\"ÊM-M-^QÊM-^XØ‰∏M-ÂM-^O™ÁM-^L´„M-
 	j = printf("blabla%d blabla %C", 5, 1234567);
 	printf(" -> %d for LIBC PF\n", j);
 */
-	i = -2147483648;
-	while (i < 2147483647)
-	{
+	// i = -2147483648;
+	// while (i < 2147483647)
+	// {
 		
-		ft_printf("%C", i);
-	//	printf("%C", i);
-		++i;
-	}
+	// 	ft_printf("%C", i);
+	// //	printf("%C", i);
+	// 	++i;
+	// }
 /*}
 	i = ft_printf("{%a}", 30.5655);
 	printf(" -> %d for my PF\n", i);

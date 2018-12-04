@@ -6,7 +6,7 @@
 /*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/28 18:37:46 by angavrel          #+#    #+#             */
-/*   Updated: 2018/12/04 12:17:33 by akupriia         ###   ########.fr       */
+/*   Updated: 2018/12/04 13:03:37 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,22 +28,21 @@
 ** --------------------------- Masks Definition --------------------------------
 */
 
-# define F_SHARP		(1 << 0)
-# define F_SPACE		(1 << 1)
-# define F_PLUS 		(1 << 2)
-# define F_MINUS        (1 << 3)
-# define F_ZERO			(1 << 4)
-# define F_WILDCARD		(1 << 5)
-# define F_UPCASE		(1 << 6)
-# define F_SHORT		(1 << 7)
-# define F_SHORT2		(1 << 8)
-# define F_LONG			(1 << 9)
-# define F_LONG2		(1 << 10)
-# define F_INTMAX		(1 << 11)
-# define F_SIZE_T		(1 << 12)
-# define F_MIN_LEN		(1 << 13)
-# define F_APP_PRECI	(1 << 14)
-# define F_POINTER		(1 << 15)
+# define HASH_FL		(1 << 0)
+# define SP_FL			(1 << 1)
+# define PL_FL 			(1 << 2)
+# define MIN_FL			(1 << 3)
+# define NIL_FL			(1 << 4)
+# define WCARD_FL		(1 << 5)
+# define UPPERC_FL		(1 << 6)
+# define SH_FL			(1 << 7)
+# define SH_FL2			(1 << 8)
+# define L_FL			(1 << 9)
+# define L_FL2			(1 << 10)
+# define IMAX_FL		(1 << 11)
+# define SIZET_FL		(1 << 12)
+# define PREC_FL		(1 << 14)
+# define POINT_FL		(1 << 15)
 
 /*
 ** --------------------------- ft_printf variables -----------------------------
@@ -58,23 +57,23 @@
 ** I) c is a temp char (as unsigned int) in order to have a single declaration
 */
 
-typedef struct	s_printf
+typedef struct	s_global
 {
+	size_t		buffer_index;
+	unsigned	c;
 	int			len;
-	short		f;
 	int			min_length;
-	int			preci;
+	int			precision;
 	int			padding;
 	int			printed;
 	int			fd;
-	size_t		buffer_index;
+	int			n;
+	int			i;
+	short		f;
 	char		buff[PF_BUF_SIZE];
 	va_list		ap;
 	char		*format;
-	unsigned	c;
-	int			i;
-	int			n;
-}				t_printf;
+}				t_global;
 
 /*
 ** --------------------------- ft_printf main functions ------------------------
@@ -83,37 +82,37 @@ typedef struct	s_printf
 int				ft_printf(const char *format, ...);
 int				ft_dprintf(int fd, const char *format, ...);
 char			*ft_sprintf(const char *format, ...);
-void			parse_optionals(t_printf *p);
-void			cs_not_found(t_printf *p);
+void			parse_optionals(t_global *p);
+void			cs_not_found(t_global *p);
 
 /*
 ** --------------------------- number related functions ------------------------
 ** %d %D %i %f %F %b %B %o %O %u %U %h %H %a %A
 */
 
-void			pf_putnb(t_printf *p);
-void			pf_putnb_base(int base, t_printf *p);
-void			itoa_printf(intmax_t d, t_printf *p, int len);
-void			itoa_base_printf(uintmax_t d, int b, t_printf *p);
-void			pf_putdouble(t_printf *p, int n);
+void			pf_putnb(t_global *p);
+void			pf_putnb_base(int base, t_global *p);
+void			itoa_printf(intmax_t d, t_global *p, int len);
+void			itoa_base_printf(uintmax_t d, int b, t_global *p);
+void			pf_putdouble(t_global *p, int n);
 
 /*
 ** --------------------------- number related functions ------------------------
 **  %s %S %c %C
 */
 
-void			pf_putstr(t_printf *p);
-void			pf_putwstr(t_printf *p);
-void			pf_character(t_printf *p, unsigned c);
-void			pf_puterror(char *s, t_printf *p);
+void			pf_putstr(t_global *p);
+void			pf_putwstr(t_global *p);
+void			pf_character(t_global *p, unsigned c);
+void			pf_puterror(char *s, t_global *p);
 
 /*
 ** --------------------------- miscellaneous functions -------------------------
 */
 
-void			buffer(t_printf *p, void *new, size_t size);
-void			padding(t_printf *p, int n);
-void			print_pointer_address(t_printf *p);
+void			buffer(t_global *p, void *new, size_t size);
+void			padding(t_global *p, int n);
+void			print_pointer_address(t_global *p);
 
 /*
 ** --------------------------- colors related defines --------------------------

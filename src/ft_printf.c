@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_printf.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: angavrel <angavrel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: akupriia <akupriia@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/28 19:18:44 by angavrel          #+#    #+#             */
-/*   Updated: 2017/05/30 21:19:19 by angavrel         ###   ########.fr       */
+/*   Updated: 2018/12/04 12:57:02 by akupriia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 int		ft_printf(const char *format, ...)
 {
-	t_printf	p;
+	t_global	p;
 
 	ft_bzero(&p, sizeof(p));
 	p.fd = 1;
@@ -51,7 +51,7 @@ int		ft_printf(const char *format, ...)
 
 int		ft_dprintf(int fd, const char *format, ...)
 {
-	t_printf	p;
+	t_global	p;
 
 	ft_bzero(&p, sizeof(p));
 	p.fd = fd;
@@ -85,7 +85,7 @@ int		ft_dprintf(int fd, const char *format, ...)
 
 char	*ft_sprintf(const char *format, ...)
 {
-	t_printf	p;
+	t_global	p;
 	char		*ret;
 
 	ft_bzero(&p, sizeof(p));
@@ -111,17 +111,17 @@ char	*ft_sprintf(const char *format, ...)
 ** function that displays pointer address
 */
 
-void	print_pointer_address(t_printf *p)
+void	print_pointer_address(t_global *p)
 {
 	void	*pointer;
 
 	pointer = va_arg(p->ap, void *);
-	p->f &= ~F_SHARP;
-	p->min_length -= (p->f & F_ZERO ? 2 : 0);
+	p->f &= ~HASH_FL;
+	p->min_length -= (p->f & NIL_FL ? 2 : 0);
 	p->padding = (p->printed > p->min_length - 3) ? 0 :
 		p->min_length - 3 - p->printed;
-	p->f |= F_SHARP;
-	p->f |= F_POINTER;
+	p->f |= HASH_FL;
+	p->f |= POINT_FL;
 	p->printed = 0;
 	itoa_base_printf((uintmax_t)pointer, 16, p);
 }
@@ -130,7 +130,7 @@ void	print_pointer_address(t_printf *p)
 ** function if no conversion specifier was found.
 */
 
-void	cs_not_found(t_printf *p)
+void	cs_not_found(t_global *p)
 {
 	if ((p->padding = p->min_length - 1) > 0)
 	{
