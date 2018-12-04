@@ -9,7 +9,8 @@
 
 # Main
 a.out
-misc
+
+# Trash
 .*~
 
 # DS_Store
